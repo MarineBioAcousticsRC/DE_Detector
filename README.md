@@ -1,6 +1,6 @@
 # Density Estimation Detector
 
-Set of scripts to detect odontocete clicks above a threshold recieved level in xwav data. This two-pass detector is based on and incorporates previous work by Marie A. Roch, Simone Baumann-Pickering, and Sean M. Wiggins. 
+Set of scripts to detect odontocete clicks above a threshold recieved level in .x.wav data. This two-pass detector is based on and incorporates previous work by Marie A. Roch, Simone Baumann-Pickering, and Sean M. Wiggins. 
 Detector by Kait E. Frasier.
 
 
@@ -47,4 +47,21 @@ highResDet = 1; %run high res detector
 
 - In noisy areas, a more restrictive postprocessing step is possible. Email for more info.
 
-- Let me know if/when you run into issues...
+
+## Outputs
+
+/metadata/<disk name> 
+	contains all of the file types below:
+- .c 
+Low res detector output. This is a text file with flagged start and end times listed as 2 columns. Times are in seconds relative to .x.wav start time.
+
+- .ctg
+High res detector output. This is a text file with detection start and end times listed as 2 columns. Times are in seconds relative to .x.wav start time.
+
+- .ptg
+same as .ctg but has been run through a post processing step to remove redundant detections, etc.
+
+- .mat
+matlab file containing various parameters describing the detected signals retained by all detection steps.
+
+Note: Filenames match the name of the .xwav they describe.
