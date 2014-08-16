@@ -9,15 +9,15 @@ clickSampleLims = ceil((hdr.fs./1e6).*[p.minClick_us, p.maxClick_us]);
 dataSmooth = smooth(abs(bpDataHi),15);
 thresh = prctile(dataSmooth,70);
 for itr = 1:length(sStarts)
-    range = sStarts(itr):sStops(itr);
+    rangeVec = sStarts(itr):sStops(itr);
     % Discard smooth to make an envelope
-    [m, ~] = max(energy(range));
+    [m, ~] = max(energy(rangeVec));
     
     % bpMean = mean(smoothEnergy([1:500,end-500:end]));
     % bpStd = std(dataSmooth([1:500,end-500:end]));
     % find the largest peak
-    largePeakList = sort(find(energy(range) > .5*m));
-    midx = range(largePeakList(1));
+    largePeakList = sort(find(energy(rangeVec) > .5*m));
+    midx = rangeVec(largePeakList(1));
     
     leftmost = 5;
     %Repeat for complete clicks using running mean of Teager Energy
