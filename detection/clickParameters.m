@@ -131,9 +131,9 @@ for c = 1:size(clicks,1)
     end
     nDur(c,1) = highIdx - lowIdx + 1;
     
-    %compare maximum in envelope of first 20 points with maximum of 30-40 points
+    %compare maximum first half of points with second half.
     halves = ceil(nDur(c,1)/2);   
-    env1max = max(env(lowIdx:lowIdx+halves));
+    env1max = max(env(lowIdx:min([lowIdx+halves,length(env)])));
     env2max = max(env(min([lowIdx+(halves)+1,length(env)]):end));
     deltaEnv(c,1) = env1max-env2max;
     

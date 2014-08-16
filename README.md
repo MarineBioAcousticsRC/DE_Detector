@@ -52,16 +52,16 @@ highResDet = 1; %run high res detector
 
 /metadata/<disk name> 
 	contains all of the file types below:
-- .c 
+- .c  - 
 Low res detector output. This is a text file with flagged start and end times listed as 2 columns. Times are in seconds relative to .x.wav start time.
 
-- .ctg
+- .ctg  -   
 High res detector output. This is a text file with detection start and end times listed as 2 columns. Times are in seconds relative to .x.wav start time.
 
-- .ptg
+- .ptg  - 
 same as .ctg but has been run through a post processing step to remove redundant detections, etc.
 
-- .mat
+- .mat  - 
 matlab file containing various parameters describing the detected signals retained by all detection steps.
 
 Note: Filenames match the name of the .xwav they describe.
