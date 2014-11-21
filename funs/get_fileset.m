@@ -3,10 +3,14 @@ function [fullFiles,fullLabels] = get_fileset(baseDir,metaDir,detFiles)
 % reference later.
 fullFiles = [];
 fullLabels = [];
-for f2 = 1:length(detFiles)
+for f2 = 1:size(detFiles,1)
     thisFile = detFiles(f2,:);
     fullFiles{f2}= fullfile(baseDir,thisFile);
     [pathStr, thisName, ~] = fileparts(thisFile);
-    thisName = ([thisName(1:size(thisName,2)-2),'.c']);
+    if strfind(thisFile,'.x.wav')
+        thisName = ([thisName(1:size(thisName,2)-2),'.c']);
+    else 
+        thisName = [thisName,'.c'];
+    end
     fullLabels{f2} = fullfile(metaDir,pathStr,thisName);
 end

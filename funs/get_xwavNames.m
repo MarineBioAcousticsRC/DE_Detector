@@ -18,7 +18,7 @@ function [xwavNames] = get_xwavNames(xwavDir)
 %%%%%%%%%%%%%%%%%%%%%%
 % check for empty directory
 %
-d = dir(fullfile(xwavDir,'*.x.wav'));    % xwav files
+d = dir(fullfile(xwavDir,'*.wav'));    % xwav files
 
 fn = char(d.name);      % file names in directory
 fnsz = size(fn);        % number of data files in directory 

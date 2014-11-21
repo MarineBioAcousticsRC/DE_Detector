@@ -11,8 +11,8 @@ function fname_out = ioGetWriteNameViewpath(fname, viewpath, createdir)
 % 
 % See also:  ioOpenViewpath, ioSearchViewpath
 %
-% Do not modify the following line, maintained by CVS
-% $Id: ioGetWriteNameViewpath.m,v 1.1 2009/08/22 19:00:12 mroch Exp $
+% Based on Triton, Version 1.64.20070709 
+% ioGetWriteNameViewpath.m,v 1.1 2009/08/22 19:00:12 mroch 
 
 [fname_out, fname_rel] = ioSearchViewpath(fname, viewpath);
 if isempty(fname_out)

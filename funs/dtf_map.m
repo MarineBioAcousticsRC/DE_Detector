@@ -1,21 +1,11 @@
 function [f, uppc] = dtf_map(tf_fname,f_desired)
-% [f, uppc] = function tfmap(filename, channel, f_desired, verbose)
+% [f, uppc] = dtf_map(tf_fname, f_desired)
 % transfer function map
-% Given a filename and channel, determine which transfer function to use.
-% Currently rather primitive (table lookup) and is only used
-% in dtHighResClickBatch but transfer function handling should
-% be done everywhere.
-%
-% If the optional argument f_desired is given, the transfer
-% function is linearly interpolated to the specified frequency
-% range.  Extrapolation is permitted, but should be used with
-% caution.
 
-% map to accomplish:  filename --> transfer fn file
-% map contains regular expressions that are compared to
-% the input filename sequentially.  When the first match
-% occurs, the corresponding file is loaded and f, uppc
-% are set to the appropriate frequencies and offsets.
+% Given a path to a transfer function file open it and 
+% interpollate to curve to match desired frequency vector.
+
+% Based tfmap.m in Triton, Version 1.64.20070709 
 
 fid = fopen(tf_fname,'r');
 if fid ~=-1

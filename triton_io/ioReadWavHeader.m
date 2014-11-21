@@ -28,7 +28,7 @@ if nargin < 2
     end
 end
 
-hdr.filetype = 'wav';  % Assume until we find otherwise
+hdr.fType = 'wav';
 
 f_handle = ioOpenWav(Filename);
 if f_handle == -1
@@ -65,35 +65,13 @@ else
             case 'data'
                 hdr.dataChunk = length(Chunks)+1;  % Note chunk idx
 
-            case 'harp'
-                %error('harp not yet supported');
-                % stopped here - header read seems to be buggy.
-                % check to make sure at right position...
-                hdr.filetype = 'xwav';
-                if isfield(hdr, 'fmtChunk')
-                    Chunk.Info = ioReadRiffCk_harp(f_handle, Chunk, ...
-                        Chunks{hdr.fmtChunk});
-                    % Copy fields to hdr for backward compatibility
-                    fields = fieldnames(Chunk.Info);
-                    for f = 1:length(fields)
-                        hdr.(fields{f}) = Chunk.Info.(fields{f});
-                    end
-                    hdr.harpChunk = length(Chunks)+1;  % Note chunk idx
-                else
-                    error('io:fmt chunk must come before harp chunk');
-                end
-
             otherwise
                 Chunk.info = [];    % no meta information to store
         end
         Chunks{end+1} = Chunk;        % store new chunk
 
         fseek(f_handle, Chunk.StartByte + Chunk.ChunkSize, 'bof');
-        if 0    % debug
-            fprintf('seek:  ');
-            fprintf('%X \n', Chunk.StartByte, Chunk.ChunkSize, ...
-                Chunk.StartByte+Chunk.ChunkSize);
-        end
+
         Chunk = ioReadRIFFCkHdr(f_handle);
     end
 end
@@ -132,19 +110,21 @@ else
     % no HARP format
     % Add HARP data structures for uniform access
     hdr.xgain = 1;          % gain (1 = no change)
-
+    [~,shortName,~] = fileparts(Filename);
     % determine timestamp
-    hdr.start.dnum = dateregexp(Filename, DateRE, ...
-        datenum([0 1 1 0 0 0]), ... % default if we cannot match
-        dateoffset());  % offset from
-    hdr.start.dvec = datevec(hdr.start.dnum);
+    [~,~,~,~,k] = regexp(shortName, DateRE);
+    catDate = cell2mat(k{1});
+    hdr.start.dvec = [str2double(catDate(1:4)),str2double(catDate(5:6)),...
+        str2double(catDate(7:8)),str2double(catDate(9:10)),...
+        str2double(catDate(11:12)),str2double(catDate(13:14))];
+    hdr.start.dnum = datenum(hdr.start.dvec);
     hdr.xhd.year = hdr.start.dvec(1);          % Year
     hdr.xhd.month = hdr.start.dvec(2);         % Month
     hdr.xhd.day = hdr.start.dvec(3);           % Day
     hdr.xhd.hour = hdr.start.dvec(4);          % Hour
     hdr.xhd.minute = hdr.start.dvec(5);        % Minute
     hdr.xhd.secs = hdr.start.dvec(6);          % Seconds
-
+    
     samplesN = hdr.xhd.byte_length ./ (hdr.nch * hdr.samp.byte);
     hdr.end.dnum = hdr.start.dnum + datenum([0 0 0 0 0 samplesN/hdr.fs]);
 end

@@ -17,7 +17,7 @@ if duration_samples < 3*length(wideBandFilter)
 end
 
 % read in the data
-data = ioReadXWAV(fid, hdr, start, stop, channel, 2, fullFiles);
+data = ioReadXWAV(fid, hdr, start, stop, channel, fullFiles);
 
 % filter the data
 wideBandData = filter(wideBandFilter,1,data);

@@ -11,7 +11,7 @@ for c = 1:length(clickInd)
     currentClickEnd = startsK + clicks(cI,2)/hdr.fs;
     if ~isempty(currentClickEnd)
         if clkAnnotH ~= -1
-            % If true write individual click annotations to .ccc file
+            % If true write individual click annotations to .ctg file
             fprintf(clkAnnotH, '%f %f\n', ...
                 currentClickStart + length(wideBandFilter)/2/hdr.fs, ...
                 currentClickEnd + length(wideBandFilter)/2/hdr.fs);

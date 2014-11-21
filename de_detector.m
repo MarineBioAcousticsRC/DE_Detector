@@ -1,7 +1,14 @@
 function de_detector
 % This is the starting point for a simplified detector based on Marie Roche's  
 % teager energy detector. It includes ideas/code snips from Simone, 
-% and calls functions from triton.
+% and calls functions from triton. 
+% The goal of this detector is to have predictable performance, 
+% for use with model-based density estimation efforts. To accomplish this,
+% it uses a simple energy threshold to identify clicks, thereby reducing
+% the impact of changing noise conditions on detectability. 
+
+% Known issue: Prop cavitation noise often makes it through detector and
+% classifier steps.
 
 % The low and hi-res detection passes still happen, but no teager energy 
 % is used.
@@ -16,13 +23,19 @@ close all
 fclose all;
 
 % Set transfer function location
-tfFullFile = 'E:\Code\TF_files\585_091116_invSensit_MC.tf';
+tfFullFile = 'E:\Code\TF_files\604_100614\604_100614_invSensit.tf';
+% Note, if you don't have a tranfer function just use:
+% tfFullFile = [];
 
-% Location of files to be analyzed
+
+% Location of base directory containing directories of files to be analyzed
+%baseDir = 'I:\GofMXArraySpRecs\Scl';
 baseDir = 'H:\';
 
-% Name of the deployment. This should be the first few characters in the names 
-% of the xwav files you want to look at.
+% Name of the deployment. This should be the first few characters in the 
+% directory(ies) you want to look in you want to look at. For now,
+% directory hierarchy is expected to be: basedir>depl*>*.wav
+% TODO: implement recursive directory search for more flexibility.
 depl = 'GofMX';
 
 % Set flags indicating which routines to run. 
@@ -31,10 +44,11 @@ highResDet = 1; %run high res detector
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [metaDir] = dBuild_dirs(baseDir);
-inDisk = fileparts(baseDir(1:3));
+% inDisk = fileparts(baseDir(1:3));
 
-% Build list of xwav names in the base directory
-[detFiles,~]= dFind_xwavs(baseDir,depl); % doesn't read in manual detection 
+% Build list of (x)wav names in the base directory.
+% Right now only wav and xwav files are looked for.
+[detFiles]= dFind_xwavs(baseDir,depl); % doesn't read in manual detection 
 % files in this version, but this can be added pretty easily, using an
 % older version.
 
@@ -48,7 +62,7 @@ if ~isempty(detFiles)
         % load settings
         parametersST = dLoad_STsettings;
         % run detector
-        dtST_batch(baseDir,detFiles,parametersST,viewPath,tfFullFile);
+        dtST_batch(baseDir,detFiles,parametersST,viewPath);
     end
     
     % High res detector
@@ -56,7 +70,7 @@ if ~isempty(detFiles)
         % load settings
         parametersHR = dLoad_HRsettings;
         % run detector
-        dHighres_click_batch(fullFiles,fullLabels,inDisk,parametersHR,viewPath,tfFullFile)
+        dHighres_click_batch(fullFiles,fullLabels,baseDir,parametersHR,viewPath,tfFullFile)
     end
 end
 % profile viewer

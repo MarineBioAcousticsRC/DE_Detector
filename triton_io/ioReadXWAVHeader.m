@@ -38,6 +38,7 @@ elseif ftype == 2               % do the following for xwavs
         error('Unable to open %s', Filename)
     end
     hdr.filetype = 'xwav';
+    hdr.fType = 'xwav';
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % RIFF chunk
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -223,4 +224,5 @@ elseif ftype == 2               % do the following for xwavs
     % hdr.end.sample/hdr.fs]));
 else
     error('Bad ftype')
+    fclose(all)
 end

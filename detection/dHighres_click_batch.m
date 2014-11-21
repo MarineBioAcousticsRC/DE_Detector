@@ -8,7 +8,7 @@ for idx1=1:N; % for each data file
     % figure out which files are needed, where to find them.
     [clkAnnotH,hdr,channel,labelFile]...
         = dInput_HR_files(fullFiles{idx1},fullLabels{idx1},viewPath,p);
-
+    
     if isempty(hdr.fs)
         continue % skip if you couldn't read a header
     elseif hdr.fs ~= previousFs
@@ -20,26 +20,38 @@ for idx1=1:N; % for each data file
         
         % Determine the frequencies for which we need the transfer function
         xfr_f = (specRange(1)-1)*binWidth_Hz:binWidth_Hz:(specRange(end)-1)*binWidth_Hz;
-        [xfr_f, xfrOffset] = dtf_map(tfFullFile, xfr_f);
+        if ~isempty(tfFullFile)
+            [xfr_f, xfrOffset] = dtf_map(tfFullFile, xfr_f);
+        else
+            % if you didn't provide a tf function, then just create a
+            % vector of zeros of the right size.
+            xfrOffset = zeros(size(xfr_f));
+        end
         xfrOffset = xfrOffset';
     end
     
-    % Read in the .c file produced by the short term detector.
-    [starts,stops,~] = ioReadLabelFile([inDisk 'metadata\' labelFile]);
-    if length(starts)<=2
+    if exist([inDisk 'metadata\' labelFile],'file')
+        % Read in the .c file produced by the short term detector.
+        [starts,stops,~] = ioReadLabelFile([inDisk 'metadata\' labelFile]);
+        if length(starts)<=2
+            fclose(clkAnnotH)
+            continue
+        end
+    else
+        fclose(clkAnnotH)
         continue
     end
     % Open xwav file
-    fid = ioOpenViewpath(fullFiles{idx1}, viewPath, 'r'); 
-
+    fid = ioOpenViewpath(fullFiles{idx1}, viewPath, 'r');
+    
     % Look for clicks, hand back parameters of retained clicks
-      [clickTimes,ppSignalVec,durClickVec,~,~,yFiltVec,...
-      specClickTfVec, ~, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
+    [clickTimes,ppSignalVec,durClickVec,~,~,yFiltVec,...
+        specClickTfVec, ~, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
         = dProcess_HR_starts(fid, wideBandFilter,starts,stops,channel,...
         xfrOffset,specRange,p,hdr,fullFiles{idx1},fftWindow,clkAnnotH);
- 
+    
     % Done with that file
-    fclose(fid); 
+    fclose(fid);
     fclose(clkAnnotH);
     fclose all;
     fprintf('done with %s\n', fullFiles{idx1});
@@ -72,4 +84,4 @@ for idx1=1:N; % for each data file
     save(strcat(fullLabels{idx1}(1:end-2),'.mat'),'clickTimes','ppSignal',...
         'durClick','f','hdr','nDur','deltaEnv',...
         'yFilt','specClickTf', 'peakFr','-mat');%'yFiltBuff'
-end 
+end

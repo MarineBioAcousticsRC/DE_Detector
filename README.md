@@ -1,3 +1,21 @@
+## Update 11/21/2014
+Detector has been updated to accept .wav files in addition to x.wavs.
+If you run the detector on directories of wav files, it will look for file start time information in the file name.
+ 
+Edit the regular expression in the load settings scripts:
+
+parametersHR.DateRE = '_(\d*)_(\d*)';
+
+to match your filename date format. 
+
+The result should be a string of numbers in the following order:
+yyyymmddHHMMSS
+
+The implementation is a little bit wonky, so contact me if you have problems.
+
+The detector will determine what file type you're using, but to be on the safe side, I'd suggest analyzing wav and xwav files separately.
+
+
 # Density Estimation Detector
 
 Set of scripts to detect odontocete clicks above a threshold recieved level in .x.wav data. This two-pass detector is based on and incorporates previous work by Marie A. Roch, Simone Baumann-Pickering, and Sean M. Wiggins. 
@@ -65,3 +83,5 @@ same as .ctg but has been run through a post processing step to remove redundant
 matlab file containing various parameters describing the detected signals retained by all detection steps.
 
 Note: Filenames match the name of the .xwav they describe.
+
+

@@ -1,4 +1,4 @@
-function dtST_batch(baseDir,detFiles,p,viewPath,tfFullFile)
+function dtST_batch(baseDir,detFiles,p,viewPath)
 % Runs a quick energy detector on a set of files using
 % the specified set of detection parameters. Flags times containing signals
 % of interest, and outputs the results to a .c file
@@ -9,12 +9,11 @@ function dtST_batch(baseDir,detFiles,p,viewPath,tfFullFile)
 
 N = size(detFiles,1);
 
-[xfr_f, xfrOffset] = dtf_map(tfFullFile); % read the transfer function
-xfrOffset = xfrOffset';
-
-for idx = 1:N  % "parfor" works here, parallellizing the process across as many cores as your machine has available.
-    % It's faster, but the drawback is that if the code crashes,it's hard to figure
-    % out where it was, and how many files have been completed. You can use regular "for" .
+for idx = 1:N  % "parfor" works here, parallellizing the process across as
+    % many cores as your machine has available.
+    % It's faster, but the drawback is that if the code crashes,
+    % it's hard to figure out where it was, and how many files
+    % have been completed. You can use regular "for" too.
     
     outLabel = regexprep(detFiles(idx,:), p.REWavExt, '.c','ignorecase');
     outFileName = ioGetWriteNameViewpath(outLabel, viewPath, true);
@@ -23,16 +22,21 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as many 
         
         % Pull in a file to examine
         currentFile = fullfile(baseDir, detFiles(idx,:));
-        
+        [~,strippedName,fType1] = fileparts(currentFile);
+        [~,~,fType2] = fileparts(strippedName);
+        fType = [fType2,fType1];
         % Read the file header info
-        hdr = ioReadXWAVHeader(currentFile, 'ftype', p.fType);
-        
+        if strncmp(fType,'.wav',4)
+            hdr = ioReadWavHeader(currentFile, p.DateRE);
+        elseif strcmp(fType,'.x.wav')
+            hdr = ioReadXWAVHeader(currentFile);
+        end
         % Determine channel of interest
         channel = p.chan;
         
         % divide xwav into smaller bits for processing ease
         [startsSec,stopsSec,~,~,~] = dST_choose_segments(p,hdr);
-
+        
         % Open audio file
         fid = fopen(currentFile, 'r');
         
@@ -48,9 +52,9 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as many 
             
             % Read in data segment
             data = ioReadXWAV(fid, hdr, startK, stopK, ...
-                channel, p.fType, char(currentFile));
+                channel, char(currentFile));
             
-            % bandpass            
+            % bandpass
             filtData = filter(STFilter,1,data);
             filtData = filtData(filtTaps+1:end).^2;
             

@@ -1,4 +1,5 @@
-function [xwavNames,startFile]= dFind_xwavs(baseDir,depl)
+function [xwavNames]= dFind_xwavs(baseDir,depl)
+% also retunrs .wav files
 
 % Find folders in baseDir
 folders = dir(baseDir);
@@ -26,8 +27,12 @@ end
 % Pull out x.wav files from all folders, combine full paths into one long list
 xwavNames = [];
 for fidx = 1:size(folderNames,1)
-    xwavDir = [baseDir,folderNames(fidx,:)];
-    xwavs = get_xwavNames(xwavDir);
+    xwavDir = fullfile(baseDir,folderNames(fidx,:));
+    % list of files
+    d = dir(fullfile(xwavDir,'*.wav')); % list of wav and/or xwav files
+    xwavs = char(d.name);      % file names in directory
+    % filenames
+    
     xwavList = [];
     for s = 1:size(xwavs,1)
         xwavList(s,:) = fullfile(folderNames(fidx,:),xwavs(s,:));
@@ -35,13 +40,13 @@ for fidx = 1:size(folderNames,1)
     xwavNames = [xwavNames;char(xwavList)];
 end
 
-%parse out all dates and times for the start of each xwav file
-ds = size(xwavNames,2);
-startFile = [];
-for m = 1:size(xwavNames,1)
-    file = xwavNames(m,:);
-    dateFile = [str2num(['20',file(ds-18:ds-17)]),str2num(file(ds-16:ds-15)),...
-        str2num(file(ds-14:ds-13)),str2num(file(ds-11:ds-10)),...
-        str2num(file(ds-9:ds-8)),str2num(file(ds-7:ds-6))];
-    startFile = [startFile; datenum(dateFile)];
-end
+% %parse out all dates and times for the start of each xwav file
+% ds = size(xwavNames,2);
+% startFile = [];
+% for m = 1:size(xwavNames,1)
+%     file = xwavNames(m,:);
+%     dateFile = [str2num(['20',file(ds-18:ds-17)]),str2num(file(ds-16:ds-15)),...
+%         str2num(file(ds-14:ds-13)),str2num(file(ds-11:ds-10)),...
+%         str2num(file(ds-9:ds-8)),str2num(file(ds-7:ds-6))];
+%     startFile = [startFile; datenum(dateFile)];
+% end

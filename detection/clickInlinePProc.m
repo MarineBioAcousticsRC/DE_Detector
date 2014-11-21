@@ -54,7 +54,7 @@ end
 if size(clickTimesPruned,1)>1
     dtimes = diff(clickTimesPruned(:,1));
     closeStarts = find(dtimes<.00002);
-    clickTimesPruned(closeStarts+1,:) = [];
+    delFlag(closeStarts+1,:) = 0;
 end
 
 fidOut = fopen(strcat(outFileName(1:end-1),p.ppExt),'w+');
