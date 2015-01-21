@@ -1,7 +1,7 @@
 function [clickTimes,ppSignalVec,durClickVec,bw3dbVec,yNFiltVec,yFiltVec,...
     specClickTfVec, specNoiseTfVec, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
     = dProcess_HR_starts(fid, wideBandFilter,starts,stops,channel,xfrOffset,...
-    specRange,p,hdr,fullFiles,fftWindow,clkAnnotH)
+    specRange,p,hdr,fullFiles,fftWindow,fullLabel)
 
 % Initialize vectors for main detector loop
 clickTimes = nan(5E6,2);
@@ -23,6 +23,8 @@ eIdx = 0;
 % cumulatively across files).
 
 numStarts = length(starts);
+fidOut = fopen(strcat(fullLabel(1:end-1),p.clickAnnotExt),'w+');
+
 for k = 1:numStarts % stepping through using the start/end points
     
     % Filter the data
@@ -52,7 +54,7 @@ for k = 1:numStarts % stepping through using the start/end points
         if ~isempty(clickInd)
             % Write out .cTg file
             [clkStarts,clkEnds] = dProcess_valid_clicks(clicks,clickInd,...
-                starts(k),hdr,clkAnnotH,wideBandFilter);
+                starts(k),hdr,fidOut,wideBandFilter);
             
             eIdx = sIdx + size(nDur,1)-1;
             clickTimes(sIdx:eIdx,1:2) = [clkStarts,clkEnds];
@@ -74,6 +76,8 @@ for k = 1:numStarts % stepping through using the start/end points
         fprintf('low res period %d of %d complete \n',k,numStarts)
     end
 end
+
+fclose(fidOut);
 % goodRows = find(~isnan(clickTimes(:,1))==1);
 % goodCells = find(cellfun('isempty',yFiltVec)==0);
 clickTimes = clickTimes(1:eIdx,:);
@@ -85,4 +89,3 @@ peakFrVec = peakFrVec(1:eIdx,:);
 yFiltBuffVec = yFiltBuffVec(1:eIdx,:);
 deltaEnvVec = deltaEnvVec(1:eIdx,:);
 nDurVec = nDurVec(1:eIdx,:);
-1;

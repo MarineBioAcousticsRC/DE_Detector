@@ -28,15 +28,18 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
         % Read the file header info
         if strncmp(fType,'.wav',4)
             hdr = ioReadWavHeader(currentFile, p.DateRE);
+            % divide wav into smaller bits for processing ease
+            [startsSec,stopsSec] = dST_choose_segments(p,hdr);
+
         elseif strcmp(fType,'.x.wav')
             hdr = ioReadXWAVHeader(currentFile);
+            % divide xwav by raw file
+            [startsSec,stopsSec] = dST_choose_segments_raw(hdr);
+
         end
         % Determine channel of interest
         channel = p.chan;
-        
-        % divide xwav into smaller bits for processing ease
-        [startsSec,stopsSec,~,~,~] = dST_choose_segments(p,hdr);
-        
+                
         % Open audio file
         fid = fopen(currentFile, 'r');
         
@@ -51,8 +54,12 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
             stopK = stopsSec(k);
             
             % Read in data segment
-            data = ioReadXWAV(fid, hdr, startK, stopK, ...
-                channel, char(currentFile));
+            if strncmp(fType,'.wav',4)
+                data = ioReadWav(fid, hdr, startK, stopK, 'Units', 's',...
+                    'Channels', channel, 'Normalize', 'unscaled')';
+            else 
+                data = ioReadRaw(fid, hdr, k, channel);
+            end
             
             % bandpass
             filtData = filter(STFilter,1,data);
@@ -60,9 +67,9 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
             
             % Flag times when the amplitude rises above a threshold
             spotsOfInt = find(filtData>(p.thresholds));
-            detStart = max(((spotsOfInt - p.buff)/hdr.fs+startK),startK);
-            detStop = min(((spotsOfInt + p.buff)/hdr.fs+startK),stopK);
-            
+            detStart = max((((spotsOfInt - p.buff)/hdr.fs)+startK),startK);
+            detStop = min((((spotsOfInt + p.buff)/hdr.fs)+startK),stopK);
+             
             % Merge flags that are close together.
             if length(detStart)>1
                 [stopsM,startsM] = spMergeCandidates(p.buff/hdr.fs,detStop',detStart');

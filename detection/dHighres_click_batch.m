@@ -6,7 +6,7 @@ previousFs = 0; % make sure we build filters on first pass
 for idx1=1:N; % for each data file
     
     % figure out which files are needed, where to find them.
-    [clkAnnotH,hdr,channel,labelFile]...
+    [hdr,channel,labelFile]...
         = dInput_HR_files(fullFiles{idx1},fullLabels{idx1},viewPath,p);
     
     if isempty(hdr.fs)
@@ -33,13 +33,6 @@ for idx1=1:N; % for each data file
     if exist([inDisk 'metadata\' labelFile],'file')
         % Read in the .c file produced by the short term detector.
         [starts,stops,~] = ioReadLabelFile([inDisk 'metadata\' labelFile]);
-        if length(starts)<=2
-            fclose(clkAnnotH)
-            continue
-        end
-    else
-        fclose(clkAnnotH)
-        continue
     end
     % Open xwav file
     fid = ioOpenViewpath(fullFiles{idx1}, viewPath, 'r');
@@ -48,11 +41,10 @@ for idx1=1:N; % for each data file
     [clickTimes,ppSignalVec,durClickVec,~,~,yFiltVec,...
         specClickTfVec, ~, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
         = dProcess_HR_starts(fid, wideBandFilter,starts,stops,channel,...
-        xfrOffset,specRange,p,hdr,fullFiles{idx1},fftWindow,clkAnnotH);
+        xfrOffset,specRange,p,hdr,fullFiles{idx1},fftWindow,fullLabels{idx1});
     
     % Done with that file
     fclose(fid);
-    fclose(clkAnnotH);
     fclose all;
     fprintf('done with %s\n', fullFiles{idx1});
     
@@ -83,5 +75,5 @@ for idx1=1:N; % for each data file
     
     save(strcat(fullLabels{idx1}(1:end-2),'.mat'),'clickTimes','ppSignal',...
         'durClick','f','hdr','nDur','deltaEnv',...
-        'yFilt','specClickTf', 'peakFr','-mat');%'yFiltBuff'
+        'yFilt','specClickTf', 'peakFr','-mat','yFiltBuff');%
 end

@@ -1,5 +1,4 @@
-function [startsSec,stopsSec,fftSize,fftWindow,frameAdvanceSamples]...
-        = dST_choose_segments(p,hdr)
+function [startsSec,stopsSec] = dST_choose_segments(p,hdr)
 % Divide acoustic data into smaller chunks to prevent over-committing memory
 % Find a reasonable length of data to handle taking into account that the
 % interleaved channels will also be read. To ensure that analysis
@@ -11,8 +10,6 @@ starts = 0;
 stops = sum(hdr.xhd.byte_length)/hdr.xhd.ByteRate;
 fftSize = 2^ceil(log2(hdr.fs * p.frameLengthSec));
 
-fftWindow = kaiser(fftSize, 7.85);
-frameAdvanceSamples = fftSize.*p.overlap;
 frameAdvanceSec = fftSize / hdr.fs; % this should now be used instead of 
 % p.frameLengthSec because it has more precision
 

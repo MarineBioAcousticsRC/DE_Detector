@@ -25,8 +25,7 @@ if strcmp(hdr.fType, 'wav')    % Microsoft RIFF WAVE file
         'Normalize', 'unscaled')';
     
 elseif strcmp(hdr.fType, 'xwav')
-    skip = floor(start_s * hdr.fs); % offset into data
-    samples = floor((stop_s - start_s) * hdr.fs);
+
     if hdr.nBits == 16
         dtype = 'int16';
     elseif hdr.nBits == 32
@@ -37,12 +36,19 @@ elseif strcmp(hdr.fType, 'xwav')
         disp_msg('not supported')
         return
     end
-    % Assume that raw files embedded within the XWAV file are
-    % contiguous.  Check with Sean that this will always
-    % be the case.  If not, we need to read on a per raw
-    % file basis.
+    dnum2sec = 60*60*24;
+    rawStarts = (hdr.raw.dnumStart-hdr.raw.dnumStart(1))*dnum2sec;
+    
+    % find the correct raw file:
+    rawIdx = find(rawStarts<=start_s,1,'last');
+    
+    % how much additional data do you need to skip?
+    skip = floor((start_s-rawStarts(rawIdx)) * hdr.fs); % offset into data
+    samples = floor((stop_s - start_s) * hdr.fs);
+    
+    % then read the segment you want:
     fseek(Handle, ...
-        hdr.xhd.byte_loc(1) + skip*hdr.nch*hdr.samp.byte,'bof');
+        hdr.xhd.byte_loc(rawIdx) + skip*hdr.nch*hdr.samp.byte,'bof');
     data = fread(Handle,[hdr.nch, samples],dtype);
     
     if hdr.xgain > 0

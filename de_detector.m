@@ -29,14 +29,14 @@ tfFullFile = 'E:\Code\TF_files\604_100614\604_100614_invSensit.tf';
 
 
 % Location of base directory containing directories of files to be analyzed
-%baseDir = 'I:\GofMXArraySpRecs\Scl';
+%baseDir = 'I:\GofMXArraySpRecs\Sb';
 baseDir = 'H:\';
 
 % Name of the deployment. This should be the first few characters in the 
 % directory(ies) you want to look in you want to look at. For now,
-% directory hierarchy is expected to be: basedir>depl*>*.wav
+% directory hierarchy is expected to be: basedir>depl*>*.x.wav
 % TODO: implement recursive directory search for more flexibility.
-depl = 'GofMX';
+depl = 'GofMX_';
 
 % Set flags indicating which routines to run. 
 lowResDet = 1; %run short time detector.
