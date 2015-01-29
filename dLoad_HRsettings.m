@@ -10,7 +10,7 @@ parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1. 
 
 
 %%% Recieved level threshold params %%%
-parametersHR.ppThresh = 112;% minimum  RL threshold - dB peak to peak.
+parametersHR.ppThresh = 120;% minimum  RL threshold - dB peak to peak.
 parametersHR.countThresh = 5000; % Keep consistent with Lo-res for predictability.
 % Can be higher than low res, but not lower!
 % Keep count threshold less than equivalent pp threshold. 

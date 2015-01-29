@@ -58,10 +58,11 @@ if size(clickTimesPruned,1)>1
 end
 
 fidOut = fopen(strcat(outFileName(1:end-1),p.ppExt),'w+');
+
 if ~isempty(clickTimesPruned)
     for itr3 = 1:size(clickTimesPruned,1)
         % Write post-processed click annotations to .pTg file
-        fprintf(fidOut, '%f %f\n', clickTimesPruned(itr3,1),clickTimesPruned(itr3,2));
+        fprintf(fidOut, '%f %f \n', clickTimesPruned(itr3,1),clickTimesPruned(itr3,2));
     end
 else
     fprintf(fidOut, 'No clicks detected.');
