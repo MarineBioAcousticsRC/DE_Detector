@@ -68,7 +68,7 @@ for c = 1:size(clicks,1)
     wind = hann(winLength);
     wClick = zeros(1,N);
     wClick(1:winLength) = clickBuff.*wind.';
-    spClick = 10*log10(abs(fft(wClick,N)));
+    spClick = 20*log10(abs(fft(wClick,N)));
     
     % Compute noise spectrum
 %     windNoise = hann(N);
@@ -213,7 +213,7 @@ for idx = 1:length(ppSignal)
              durClick(idx) > cDLims(2)];
 %          plot(yFiltBuff{idx})
 %          title(sum(tfVec))
-%          1;
+         1;
     if ppSignal(idx)< p.ppThresh
         validClicks(idx) = 0; 
     elseif sum(tfVec)>0   

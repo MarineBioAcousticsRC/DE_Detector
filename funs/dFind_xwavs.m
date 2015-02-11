@@ -16,10 +16,12 @@ end
 
 keep = find(trueIdx==1);
 % Build file structure
-folderNames = [];
+folderNames = {};
+m = 1;
 for fidx = 1:length(keep)
     if isdir(fullfile(baseDir,folders(keep(fidx)).name)) == 1
-        folderNames = [folderNames; char(folders(keep(fidx)).name)];
+        folderNames{m,1} = char(folders(keep(fidx)).name);
+        m = m+1;
     end
 end
 
@@ -27,7 +29,7 @@ end
 % Pull out x.wav files from all folders, combine full paths into one long list
 xwavNames = [];
 for fidx = 1:size(folderNames,1)
-    xwavDir = fullfile(baseDir,folderNames(fidx,:));
+    xwavDir = fullfile(baseDir,folderNames{fidx,1});
     % list of files
     d = dir(fullfile(xwavDir,'*.wav')); % list of wav and/or xwav files
     xwavs = char(d.name);      % file names in directory
@@ -35,7 +37,7 @@ for fidx = 1:size(folderNames,1)
     
     xwavList = [];
     for s = 1:size(xwavs,1)
-        xwavList(s,:) = fullfile(folderNames(fidx,:),xwavs(s,:));
+        xwavList(s,:) = fullfile(folderNames{fidx,1},xwavs(s,:));
     end
     xwavNames = [xwavNames;char(xwavList)];
 end

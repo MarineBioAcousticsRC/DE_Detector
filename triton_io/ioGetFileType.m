@@ -20,7 +20,7 @@ FileExt = cell(size(Filenames));
 % the longest ones first and don't change the file type if
 % we have a subsequent match.
 
-ExtensionsBy_ftype = {'\.wav$', '\.x\.wav$'};
+ExtensionsBy_ftype = {'\.wav\s*$', '\.x\.wav$'};
 % Determine file type
 tidx = length(ExtensionsBy_ftype);
 while tidx > 0 
