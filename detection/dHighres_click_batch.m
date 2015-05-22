@@ -33,6 +33,8 @@ for idx1=1:N; % for each data file
     if exist([inDisk 'metadata\' labelFile],'file')
         % Read in the .c file produced by the short term detector.
         [starts,stops,~] = ioReadLabelFile([inDisk 'metadata\' labelFile]);
+    else 
+        continue
     end
     % Open xwav file
     fid = ioOpenViewpath(fullFiles{idx1}, viewPath, 'r');
