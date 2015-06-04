@@ -22,28 +22,35 @@ function de_detector
 close all
 fclose all;
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-tfFullFile = 'E:\Code\TF_files\604_100614\604_100614_invSensit.tf';
-% Note, if you don't have a tranfer function just use:
+tfFullFile = 'E:\Code\TF_files\Hatteras\HAT02\673_131031\673_131031_invSensit.tf';
+% Note, if you don't have a transfer function just use:
 % tfFullFile = [];
 
-
 % Location of base directory containing directories of files to be analyzed
-%baseDir = 'I:\GofMXArraySpRecs\Sb';
-baseDir = 'E:\';
+baseDir = 'H:\';
+
+% Optional output directory location. Metadata directory will be created in outDir
+% if specified, otherwise it will be created in baseDir.
+outDir  = []; 
+% or use:
+% outDir = '<your path here>';
 
 % Name of the deployment. This should be the first few characters in the 
 % directory(ies) you want to look in you want to look at. For now,
 % directory hierarchy is expected to be: basedir>depl*>*.x.wav
 % TODO: implement recursive directory search for more flexibility.
-depl = 'bigDL';
+depl = 'GofMX';
 
 % Set flags indicating which routines to run. 
 lowResDet = 1; %run short time detector.
 highResDet = 1; %run high res detector
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[metaDir] = dBuild_dirs(baseDir);
+
+[metaDir,storeDir] = dBuild_dirs(baseDir,outDir);
 % inDisk = fileparts(baseDir(1:3));
 
 % Build list of (x)wav names in the base directory.
@@ -70,7 +77,7 @@ if ~isempty(detFiles)
         % load settings
         parametersHR = dLoad_HRsettings;
         % run detector
-        dHighres_click_batch(fullFiles,fullLabels,baseDir,parametersHR,viewPath,tfFullFile)
+        dHighres_click_batch(fullFiles,fullLabels,storeDir,parametersHR,viewPath,tfFullFile)
     end
 end
 
