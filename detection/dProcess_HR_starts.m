@@ -1,6 +1,6 @@
 function [clickTimes,ppSignalVec,durClickVec,bw3dbVec,yNFiltVec,yFiltVec,...
     specClickTfVec, specNoiseTfVec, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
-    = dProcess_HR_starts(fid, wideBandFilter,starts,stops,channel,xfrOffset,...
+    = dProcess_HR_starts(fid, fB,fA,starts,stops,channel,xfrOffset,...
     specRange,p,hdr,fullFiles,fftWindow,fullLabel)
 
 % Initialize vectors for main detector loop
@@ -29,7 +29,7 @@ for k = 1:numStarts % stepping through using the start/end points
     
     % Filter the data
     wideBandData = dGet_filtered_data(fid,starts(k),stops(k),hdr,...
-        wideBandFilter,channel,fullFiles);
+        fB,fA,channel,fullFiles);
     
     % Compute energy of band passed data
     energy = wideBandData.^2;

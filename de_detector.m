@@ -25,12 +25,12 @@ fclose all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-tfFullFile = 'E:\Code\TF_files\Hatteras\HAT02\673_131031\673_131031_invSensit.tf';
+% tfFullFile = 'E:\Code\TF_files\Hatteras\HAT02\673_131031\673_131031_invSensit.tf';
 % Note, if you don't have a transfer function just use:
-% tfFullFile = [];
+tfFullFile = [];
 
 % Location of base directory containing directories of files to be analyzed
-baseDir = 'H:\';
+baseDir = 'I:\GofMX_DT07B\';
 
 % Optional output directory location. Metadata directory will be created in outDir
 % if specified, otherwise it will be created in baseDir.

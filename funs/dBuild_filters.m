@@ -1,12 +1,12 @@
 function [previousFs,fftSize,fftWindow,binWidth_Hz,freq_kHz,...
-   wideBandFilter,specRange] = dBuild_filters(p,fs)
+   fB,fA,specRange] = dBuild_filters(p,fs)
 
 % On first pass, or if a file has a different sampling rate than the
 % previous, rebuild the high pass filter
 
-% ToDo: change to IIR filters for speed?
-
-wideBandFilter = spBuildEquiRippleFIR(p.bpRanges, [0, 1], 'Fs', fs);
+[fB,fA] = butter(5, p.bpRanges./(fs/2));
+filtTaps = length(fB);
+    
 previousFs = fs;
 
 fftSize = ceil(fs * p.frameLengthUs / 1E6);

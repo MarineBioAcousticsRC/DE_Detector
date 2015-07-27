@@ -16,7 +16,7 @@ for idx1=1:N; % for each data file
         % only need to do this once though, so if you already have this
         % info, this step is skipped
         [previousFs,fftSize,fftWindow,binWidth_Hz,freq_kHz,...
-            wideBandFilter,specRange] = dBuild_filters(p,hdr.fs);
+            fB,fA,specRange] = dBuild_filters(p,hdr.fs);
         
         % Determine the frequencies for which we need the transfer function
         xfr_f = (specRange(1)-1)*binWidth_Hz:binWidth_Hz:(specRange(end)-1)*binWidth_Hz;
@@ -42,7 +42,7 @@ for idx1=1:N; % for each data file
     % Look for clicks, hand back parameters of retained clicks
     [clickTimes,ppSignalVec,durClickVec,~,~,yFiltVec,...
         specClickTfVec, ~, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
-        = dProcess_HR_starts(fid, wideBandFilter,starts,stops,channel,...
+        = dProcess_HR_starts(fid, fB,fA,starts,stops,channel,...
         xfrOffset,specRange,p,hdr,fullFiles{idx1},fftWindow,fullLabels{idx1});
     
     % Done with that file
