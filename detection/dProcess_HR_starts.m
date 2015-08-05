@@ -8,10 +8,10 @@ clickTimes = nan(5E6,2);
 ppSignalVec = nan(5E6,1);
 durClickVec = nan(5E6,1);
 bw3dbVec = [];
-yNFiltVec = [];
+yNFiltVec = cell(5E6,1);
 yFiltVec = cell(5E6,1);
 specClickTfVec = cell(5E6,1);
-specNoiseTfVec = [];
+specNoiseTfVec = cell(5E6,1);
 peakFrVec = nan(5E6,1);
 yFiltBuffVec = cell(5E6,1);
 deltaEnvVec = nan(5E6,1);
@@ -31,10 +31,8 @@ for k = 1:numStarts % stepping through using the start/end points
     wideBandData = dGet_filtered_data(fid,starts(k),stops(k),hdr,...
         fB,fA,channel,fullFiles);
     
-    % Compute energy of band passed data
-    energy = wideBandData.^2;
     % Look for click candidates
-    [clicks, noise] = dHighres_click(p, hdr, energy, wideBandData);
+    [clicks, noise] = dHighres_click(p, hdr, wideBandData);
     
     if ~ isempty(clicks)
         % if we're in here, it's because we detected one or more possible
@@ -47,24 +45,25 @@ for k = 1:numStarts % stepping through using the start/end points
         clicks = clicks(validClicks==1,:);
         
         % Compute click parameters to decide if the detection should be kept
-        [clickInd,ppSignal,durClick,~,~,yFilt,specClickTf,~,peakFr,yFiltBuff,...
-            f,deltaEnv,nDur] = clickParameters(noise,wideBandData,p,...
+        [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
+            specNoiseTf,peakFr,yFiltBuff,f,deltaEnv,nDur] = ...
+            clickParameters(noise,wideBandData,p,...
             fftWindow,xfrOffset,clicks,specRange,hdr);
         
         if ~isempty(clickInd)
             % Write out .cTg file
             [clkStarts,clkEnds] = dProcess_valid_clicks(clicks,clickInd,...
-                starts(k),hdr,fidOut,wideBandFilter);
+                starts(k),hdr,fidOut,fB);
             
             eIdx = sIdx + size(nDur,1)-1;
             clickTimes(sIdx:eIdx,1:2) = [clkStarts,clkEnds];
             ppSignalVec(sIdx:eIdx,1) = ppSignal;
             durClickVec(sIdx:eIdx,1) = durClick;
-            % bw3dbVec = [bw3dbVec;bw3db];
-            % yNFiltVec = [yNFiltVec;yNFilt];
+            bw3dbVec(sIdx:eIdx,:) = bw3db;
+            yNFiltVec(sIdx:eIdx,:) = yNFilt';
             yFiltVec(sIdx:eIdx,:)= yFilt';
             specClickTfVec(sIdx:eIdx,1) = specClickTf';
-            % specNoiseTfVec = [specNoiseTfVec;specNoiseTf'];
+            specNoiseTfVec(sIdx:eIdx,1) = specNoiseTf';
             peakFrVec(sIdx:eIdx,1) = peakFr;
             yFiltBuffVec(sIdx:eIdx,:) = yFiltBuff';
             deltaEnvVec(sIdx:eIdx,1) = deltaEnv;
@@ -83,8 +82,11 @@ fclose(fidOut);
 clickTimes = clickTimes(1:eIdx,:);
 ppSignalVec = ppSignalVec(1:eIdx,:);
 durClickVec = durClickVec(1:eIdx,:);
+bw3dbVec = bw3dbVec(1:eIdx,:);
 yFiltVec = yFiltVec(1:eIdx,:);
+yNFiltVec = yNFiltVec(1:eIdx,:);
 specClickTfVec = specClickTfVec(1:eIdx,:);
+specNoiseTfVec = specNoiseTfVec(1:eIdx,:);
 peakFrVec = peakFrVec(1:eIdx,:);
 yFiltBuffVec = yFiltBuffVec(1:eIdx,:);
 deltaEnvVec = deltaEnvVec(1:eIdx,:);

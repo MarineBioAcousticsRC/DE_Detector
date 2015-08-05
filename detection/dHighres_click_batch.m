@@ -3,7 +3,7 @@ function dHighres_click_batch(fullFiles,fullLabels,inDisk,p,viewPath,tfFullFile)
 N = length(fullFiles);
 previousFs = 0; % make sure we build filters on first pass
 
-for idx1=1:N; % for each data file
+for idx1 = 1:N; % for each data file
     
     % figure out which files are needed, where to find them.
     [hdr,channel,labelFile]...
@@ -40,8 +40,8 @@ for idx1=1:N; % for each data file
     fid = ioOpenViewpath(fullFiles{idx1}, viewPath, 'r');
     
     % Look for clicks, hand back parameters of retained clicks
-    [clickTimes,ppSignalVec,durClickVec,~,~,yFiltVec,...
-        specClickTfVec, ~, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
+    [clickTimes,ppSignalVec,durClickVec,bw3dbVec,yNFiltVec,yFiltVec,...
+        specClickTfVec, specNoiseTfVec, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
         = dProcess_HR_starts(fid, fB,fA,starts,stops,channel,...
         xfrOffset,specRange,p,hdr,fullFiles{idx1},fftWindow,fullLabels{idx1});
     
@@ -59,10 +59,10 @@ for idx1=1:N; % for each data file
     clickTimes = clickTimes(delIdx,:);
     ppSignal = ppSignalVec(delIdx,:);
     durClick = durClickVec(delIdx,:);
-    % bw3db = bw3dbVec(delIdx,:);
-    % yNFilt = yNFiltVec;
+    bw3db = bw3dbVec(delIdx,:);
+    
     specClickTf = specClickTfVec(delIdx,:);
-    % specNoiseTf = specNoiseTfVec(delIdx,:);
+    specNoiseTf = specNoiseTfVec(delIdx,:);
     peakFr = peakFrVec(delIdx,:);
     deltaEnv = deltaEnvVec(delIdx,:);
     nDur = nDurVec(delIdx,:);
@@ -70,12 +70,14 @@ for idx1=1:N; % for each data file
     if ~isempty(delIdx)
         yFilt = yFiltVec(delIdx);
         yFiltBuff = yFiltBuffVec(delIdx);
+        yNFilt = yNFiltVec(delIdx);
     else
         yFilt = {};
         yFiltBuff = {};
+        yNFilt = {};
     end
     
     save(strcat(fullLabels{idx1}(1:end-2),'.mat'),'clickTimes','ppSignal',...
-        'durClick','f','hdr','nDur','deltaEnv',...
-        'yFilt','specClickTf', 'peakFr','-mat','yFiltBuff');%
+        'durClick','f','hdr','nDur','deltaEnv','yNFilt','specNoiseTf',...
+        'bw3db','yFilt','specClickTf', 'peakFr','-mat','yFiltBuff');%
 end

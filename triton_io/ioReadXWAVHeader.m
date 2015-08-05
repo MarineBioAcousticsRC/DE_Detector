@@ -46,14 +46,14 @@ elseif ftype == 2               % do the following for xwavs
     hdr.xhd.ChunkSize = fread(fid,1,'uint32');           % File size - 8 bytes
     filesize = getfield(dir(Filename),'bytes');
     if hdr.xhd.ChunkSize ~= filesize - 8
-        disp_msg('Error - incorrect Chunk Size')
+        warning('Error - incorrect Chunk Size')
         %     return    % comment to work with bad files
     end
     hdr.xhd.Format = char(fread(fid,4,'uchar'))';        % "WAVE"
 
     if ~strcmp(hdr.xhd.ChunkID,'RIFF') || ~strcmp(hdr.xhd.Format,'WAVE')
-        disp_msg('not wav file - exit')
-        return
+        error('not wav file - exit')
+        
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -69,8 +69,8 @@ elseif ftype == 2               % do the following for xwavs
     hdr.xhd.BitsPerSample = fread(fid,1,'uint16');       % # of Bits per Sample : 8bit = 8, 16bit = 16, etc
 
     if ~strcmp(hdr.xhd.fSubchunkID,'fmt ') || hdr.xhd.fSubchunkSize ~= 16
-        disp_msg('unknown wav format - exit')
-        return
+        error('unknown wav format - exit')
+        
     end
 
 % should only be needed for special case bad data
@@ -92,11 +92,11 @@ elseif ftype == 2               % do the following for xwavs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     hdr.xhd.hSubchunkID = char(fread(fid,4,'uchar'))';    % "harp"
     if strcmp(hdr.xhd.hSubchunkID,'data')
-        disp_msg('normal wav file - read data now')
+        disp('normal wav file - read data now')
         return
     elseif ~strcmp(hdr.xhd.hSubchunkID,'harp')
-        disp_msg('unsupported wav format')
-        disp_msg(['SubchunkID = ',hdr.xhd.hSubchunkID])
+        disp('unsupported wav format')
+        error(['SubchunkID = ',hdr.xhd.hSubchunkID])
         return
     end
     hdr.xhd.hSubchunkSize = fread(fid,1,'uint32');        % (Size of Subchunk - 8) includes write subchunk
@@ -114,10 +114,10 @@ elseif ftype == 2               % do the following for xwavs
     hdr.xhd.Reserved = fread(fid,8,'uchar')';            % Padding to extend subchunk to 64 bytes
 
     if hdr.xhd.hSubchunkSize ~= (64 - 8 + hdr.xhd.NumOfRawFiles * 32)
-        disp_msg('Error - HARP SubchunkSize and NumOfRawFiles discrepancy?')
-        disp_msg(['hSubchunkSize = ',num2str(hdr.xhd.hSubchunkSize)])
-        disp_msg(['NumOfRawFiles = ',num2str(hdr.xhd.NumOfRawFiles)])
-        return
+        disp('Error - HARP SubchunkSize and NumOfRawFiles discrepancy?')
+        disp(['hSubchunkSize = ',num2str(hdr.xhd.hSubchunkSize)])
+        error(['NumOfRawFiles = ',num2str(hdr.xhd.NumOfRawFiles)])
+        
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -169,9 +169,9 @@ elseif ftype == 2               % do the following for xwavs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     hdr.xhd.dSubchunkID = char(fread(fid,4,'uchar'))';    % "data"
     if ~strcmp(hdr.xhd.dSubchunkID,'data')
-        disp_msg('hummm, should be "data" here?')
-        disp_msg(['SubchunkID = ',hdr.xhd.dSubchunkID])
-        return
+        warning('hummm, should be "data" here?')
+        error(['SubchunkID = ',hdr.xhd.dSubchunkID])
+        
     end
     hdr.xhd.dSubchunkSize = fread(fid,1,'uint32');        % (Size of Subchunk - 8) includes write subchunk
 
@@ -223,6 +223,6 @@ elseif ftype == 2               % do the following for xwavs
     % hdr.end.dvec = datevec(datenum(hdr.start.dvec + [0 0 0 0 0
     % hdr.end.sample/hdr.fs]));
 else
-    error('Bad ftype')
     fclose(all)
+    error('Bad ftype')
 end

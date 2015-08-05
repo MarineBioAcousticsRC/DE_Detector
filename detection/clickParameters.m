@@ -1,6 +1,6 @@
 function [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
-    specNoiseTf,peakFr,yFiltBuff,f,deltaEnv,nDur] = clickParameters(~,wideBandData,p,fftWindow,...
-    PtfN,clicks,specRange,hdr)
+    specNoiseTf,peakFr,yFiltBuff,f,deltaEnv,nDur] = clickParameters(noiseIn,...
+    wideBandData,p,fftWindow,PtfN,clicks,specRange,hdr)
 
 %Take timeseries out of existing file, convert from normalized data to
 %counts
@@ -39,12 +39,12 @@ f = 0:((hdr.fs/2)/1000)/((N/2)-1):((hdr.fs/2)/1000);
 f = f(specRange);
 
 % concatonnate vector of noise
-% for itr = 1:min([30,size(noiseIn,1)])
-%     nStart = noiseIn(itr,1);
-%     nEnd = min([noiseIn(itr,2),nStart+580]);
-%     yNFilt = [yNFilt,wideBandData(nStart:nEnd)];
-% end
-% noise = yNFilt*2^14; % convert to counts
+for itr = 1:min([30,size(noiseIn,1)])
+    nStart = noiseIn(itr,1);
+    nEnd = min([noiseIn(itr,2),nStart+580]);
+    yNFilt = [yNFilt,wideBandData(nStart:nEnd)];
+end
+
 buffVal = hdr.fs*.00025; % Add small buffer, here, I want .25 ms, so computing how many samples to use.
 for c = 1:size(clicks,1)
     % Pull out band passed click timeseries
@@ -54,10 +54,12 @@ for c = 1:size(clicks,1)
     if strcmp(hdr.fType, 'xwav')
         click = yFilt{c}*2^14;
         clickBuff = yFiltBuff{c}*2^14;
+        noise = yNFilt*2^14; % convert to counts
     else
         click = yFilt{c}*2^15; % array needs 2^15 to convert into counts. 
         % Unclear what the cause of this is.
         clickBuff = yFiltBuff{c}*2^15;
+        noise = yNFilt*2^15; % convert to counts
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Calculate duration in seconds
@@ -71,24 +73,25 @@ for c = 1:size(clicks,1)
     spClick = 20*log10(abs(fft(wClick,N)));
     
     % Compute noise spectrum
-%     windNoise = hann(N);
-%     wNoise = [];
-%     for itr1 = 1:1:floor(length(noise)/N)
-%         wNoise(:,itr1) = noise(1,((itr1-1)*N)+1:((itr1-1)*N)+N).*windNoise.';
-%     end
-%     spNoise = fastsmooth(mean(10*log10(abs(fft(wNoise,N))),2),15,1,1)';
+    windNoise = hann(N);
+    wNoise = [];
+    for itr1 = 1:1:floor(length(noise)/N)
+        wNoise(:,itr1) = noise(1,((itr1-1)*N)+1:((itr1-1)*N)+N).*windNoise.';
+    end
     
+    spNoise = mean(20*log10(abs(fft(wNoise,N)))',1);
+
     % account for bin width
     sub = 10*log10(hdr.fs/N);
     spClickSub = spClick-sub;
-    % spNoiseSub = spNoise-sub;
+    spNoiseSub = spNoise-sub;
     
     %reduce data to first half of spectra
     spClickSub = spClickSub(:,1:N/2);
-    % spNoiseSub = spNoiseSub(:,1:N/2);
+    spNoiseSub = spNoiseSub(:,1:N/2);
     
     specClickTf{c} = spClickSub(specRange)'+PtfN;
-    % specNoiseTf{c} = spNoiseSub(specRange)'+PtfN;
+    specNoiseTf{c} = spNoiseSub(specRange)'+PtfN;
     
     %%%%%
     % calculate peak click frequency
@@ -99,7 +102,6 @@ for c = 1:size(clicks,1)
     
     %%%%%%%%%%%%%%%%%
     % calculate click envelope (code & concept from SBP 2014):
-    % pre_env = hilbert(click);
     % env = sqrt((real(pre_env)).^2+(imag(pre_env)).^2); %Au 1993, S.178, equation 9-4
     env = abs(hilbert(click));
     
@@ -213,7 +215,7 @@ for idx = 1:length(ppSignal)
              durClick(idx) > cDLims(2)];
 %          plot(yFiltBuff{idx})
 %          title(sum(tfVec))
-         1;
+%          1;
     if ppSignal(idx)< p.ppThresh
         validClicks(idx) = 0; 
     elseif sum(tfVec)>0   
@@ -222,17 +224,17 @@ for idx = 1:length(ppSignal)
     
 end
 clickInd = find(validClicks == 1);
+
 % throw out clicks that don't fall in desired ranges
 ppSignal = ppSignal(clickInd,:);
 durClick =  durClick(clickInd,:);
-% bw3db = bw3db(clickInd,:);
+bw3db = bw3db(clickInd,:);
 % frames = frames{clickInd};
-% yFilt = {yFilt{clickInd}};
 yFilt = yFilt(clickInd);
 yFiltBuff = yFiltBuff(clickInd);
 specClickTf = specClickTf(clickInd);
-% specNoiseTf = {specNoiseTf{clickInd}};
+specNoiseTf = {specNoiseTf{clickInd}};
 peakFr = peakFr(clickInd,:);
-% yNFilt = {yNFilt};
+yNFilt = {yNFilt};
 deltaEnv = deltaEnv(clickInd,:);
 nDur = nDur(clickInd,:);

@@ -5,7 +5,7 @@ function [previousFs,fftSize,fftWindow,binWidth_Hz,freq_kHz,...
 % previous, rebuild the high pass filter
 
 [fB,fA] = butter(5, p.bpRanges./(fs/2));
-filtTaps = length(fB);
+% filtTaps = length(fB);
     
 previousFs = fs;
 

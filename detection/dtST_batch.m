@@ -9,7 +9,7 @@ function dtST_batch(baseDir,detFiles,p,viewPath)
 
 N = size(detFiles,1);
 
-for idx = 1:N  % "parfor" works here, parallellizing the process across as
+parfor idx = 1:N  % "parfor" works here, parallellizing the process across as
     % many cores as your machine has available.
     % It's faster, but the drawback is that if the code crashes,
     % it's hard to figure out where it was, and how many files
@@ -62,7 +62,7 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
             end
             
             % bandpass
-            filtData = filter(B,A,data);
+            filtData = filtfilt(B,A,data);
             filtData = filtData(filtTaps+1:end).^2;
             
             % Flag times when the amplitude rises above a threshold

@@ -9,14 +9,14 @@ function [start, stop] = spDurations(Indices, MergeThreshold,idxMax)
 % start = [17, 50, 75]
 % stop = [20, 52, 80]
 % duration = [4, 3, 6]
-Indices2 = Indices(Indices>5 & Indices<(idxMax-5));
-if isempty(Indices2)
+%Indices2 = Indices(Indices>5 & Indices<(idxMax-5));
+if isempty(Indices)
     stop = [];
     start = [];
     return
 end
 % find skips in sequence
-diffs = diff(Indices2)';
+diffs = diff(Indices)';
 
 % 1st index is always a start 
 % last index is always a stop
@@ -24,12 +24,12 @@ diffs = diff(Indices2)';
 % start or stop boundary.
 %start = Indices([1; find(diffs > 1) + 1]);
 startPositions = [1; find(diffs > MergeThreshold) + 1];
-start = Indices2(startPositions);
+start = Indices(startPositions);
 if length(startPositions) > 1
-    stopPositions = [startPositions(2:end) - 1; length(Indices2)];
-    stop = Indices2(stopPositions);
+    stopPositions = [startPositions(2:end) - 1; length(Indices)];
+    stop = Indices(stopPositions);
 else
-    stop = Indices2(startPositions) + 1;
+    stop = Indices(startPositions) + 1;
 end
 
 
