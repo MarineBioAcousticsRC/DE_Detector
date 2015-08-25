@@ -1,7 +1,7 @@
 function parametersHR = dLoad_HRsettings
 
 %%% Filter and FFT params %%
-parametersHR.bpRanges = [5000,45000]; % Bandpass filter params in Hz [min,max]
+parametersHR.bpRanges = [12000,90000]; % Bandpass filter params in Hz [min,max]
 parametersHR.frameLengthUs = 1024; % For fft computation
 parametersHR.overlap = .5; % FFT overlap (in decimal, not percent form)
 parametersHR.chan = 1; % which channel do you want to look at?
@@ -11,7 +11,7 @@ parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1. 
 
 %%% Recieved level threshold params %%%
 parametersHR.ppThresh = 115;% minimum  RL threshold - dB peak to peak.
-parametersHR.countThresh = 6000; % Keep consistent with Lo-res for predictability.
+parametersHR.countThresh = 5000; % Keep consistent with Lo-res for predictability.
 % Can be higher than low res, but not lower!
 % Keep count threshold less than equivalent pp threshold. 
 %   dBs = 10*log10(abs(fft(counts *2^14))) - 10*log10(fs/(length(fftWindow)))...
@@ -19,13 +19,13 @@ parametersHR.countThresh = 6000; % Keep consistent with Lo-res for predictabilit
 % note: array uses 2^15
 
 %%% Envelope params %%%
-parametersHR.energyThr = 0.5; % n-percent energy threshold for envelope duration
-parametersHR.dEvLims = [-.1,.9];  % [min,max] Envelope energy distribution comparing 
+parametersHR.energyThr = 0.2; % n-percent energy threshold for envelope duration
+parametersHR.dEvLims = [-.2,.9];  % [min,max] Envelope energy distribution comparing 
 % first half to second half of high energy envelope of click. If there is
 % more energy in the first half of the click (dolphin) dEv >0, If it's more
 % in the second half (boats?) dEv<0. If it's about the same (beaked whale)
 % dEnv ~= 0 , but still allow a range...
-parametersHR.delphClickDurLims = [1,14];% [min,max] duration in microsec 
+parametersHR.delphClickDurLims = [.7,10];% [min,max] duration in microsec 
 % allowed for high energy envelope of click
 
 
@@ -34,7 +34,7 @@ parametersHR.cutPeakBelowKHz = 15; % discard click if peak frequency below X kHz
 parametersHR.cutPeakAboveKHz = 85; % discard click if peak frequency above Y kHz 
 parametersHR.minClick_us = 16;% Minimum duration of a click in us 
 parametersHR.maxClick_us = 1000; % Max duration of a click including echos
-parametersHR.maxNeighbor = 1; % max time in seconds allowed between neighboring 
+parametersHR.maxNeighbor = 10; % max time in seconds allowed between neighboring 
 % clicks. Clicks that are far from neighbors can be rejected using this parameter,
 % good for dolphins in noisy environments because lone clicks or pairs of
 % clicks are likely false positives

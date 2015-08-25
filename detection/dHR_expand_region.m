@@ -24,13 +24,13 @@ for itr = 1:length(sStarts)
     leftmost = 5;
     %Repeat for complete clicks using running mean of Teager Energy
     leftIdx = max(midx - 1,leftmost);
-    while leftIdx > leftmost && sum(dataSmooth(leftIdx-4:leftIdx) > thresh)~=0 % /2
+    while leftIdx > leftmost && mean(dataSmooth(leftIdx-4:leftIdx) > thresh)~=0 % /2
         leftIdx = leftIdx - 1;
     end
     
     rightmost = N-5;
     rightIdx = midx+1;
-    while rightIdx < rightmost && sum(dataSmooth(rightIdx:rightIdx+4) > thresh)~=0%+bpStd/2
+    while rightIdx < rightmost && mean(dataSmooth(rightIdx:rightIdx+4) > thresh)~=0%+bpStd/2
         rightIdx = rightIdx+1;
     end
     c_starts(k,1) = leftIdx;

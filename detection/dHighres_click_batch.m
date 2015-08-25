@@ -1,10 +1,12 @@
 function dHighres_click_batch(fullFiles,fullLabels,inDisk,p,viewPath,tfFullFile)
 
 N = length(fullFiles);
-previousFs = 0; % make sure we build filters on first pass
 
-for idx1 = 1:N; % for each data file
-    
+parfor idx1 = 1:19 % for each data file
+    previousFs = 0; % make sure we build filters on first pass
+    %(has to be inside loop for parfor, ie, filters are rebuilt every time,
+    % can be outside for regular for)
+
     % figure out which files are needed, where to find them.
     [hdr,channel,labelFile]...
         = dInput_HR_files(fullFiles{idx1},fullLabels{idx1},viewPath,p);
@@ -76,8 +78,8 @@ for idx1 = 1:N; % for each data file
         yFiltBuff = {};
         yNFilt = {};
     end
-    
-    save(strcat(fullLabels{idx1}(1:end-2),'.mat'),'clickTimes','ppSignal',...
-        'durClick','f','hdr','nDur','deltaEnv','yNFilt','specNoiseTf',...
-        'bw3db','yFilt','specClickTf', 'peakFr','-mat','yFiltBuff');%
+    save_dets2mat(strcat(fullLabels{idx1}(1:end-2),'.mat'),clickTimes,...
+        ppSignal,durClick,f,hdr,nDur,deltaEnv,yNFilt,specNoiseTf,bw3db,...
+        yFilt,specClickTf,peakFr,yFiltBuff);
+   
 end

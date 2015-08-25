@@ -4,8 +4,8 @@ function parametersST = dLoad_STsettings
 parametersST.buff = 500; % # of buffer samples to add on either side of area of interest
 parametersST.chan = 1; % which channel do you want to look at?
 
-parametersST.fRanges = [10000 45000]; 
-parametersST.thresholds = 6000; % Amplitude threshold in counts. 
+parametersST.fRanges = [12000 90000]; 
+parametersST.thresholds = 5000; % Amplitude threshold in counts. 
 % For predictability, keep this consistent between low and hi res steps.
 
 parametersST.frameLengthSec = .01; %Used for calculating fft size

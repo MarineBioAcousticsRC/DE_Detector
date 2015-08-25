@@ -2,18 +2,17 @@ function dtST_batch(baseDir,detFiles,p,viewPath)
 % Runs a quick energy detector on a set of files using
 % the specified set of detection parameters. Flags times containing signals
 % of interest, and outputs the results to a .c file
-%
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N = size(detFiles,1);
 
-parfor idx = 1:N  % "parfor" works here, parallellizing the process across as
+parfor idx = 1:19  % "parfor" works here, parallellizing the process across as
     % many cores as your machine has available.
     % It's faster, but the drawback is that if the code crashes,
     % it's hard to figure out where it was, and how many files
-    % have been completed. You can use regular "for" too.
+    % have been completed. It will also eat up your cpu.
+    % You can use regular "for" too.
     
     outLabel = regexprep(detFiles(idx,:), p.REWavExt, '.c','ignorecase');
     outFileName = ioGetWriteNameViewpath(outLabel, viewPath, true);
@@ -62,11 +61,11 @@ parfor idx = 1:N  % "parfor" works here, parallellizing the process across as
             end
             
             % bandpass
-            filtData = filtfilt(B,A,data);
-            filtData = filtData(filtTaps+1:end).^2;
+            filtData = filter(B,A,data);
+            energy = filtData.^2;
             
             % Flag times when the amplitude rises above a threshold
-            spotsOfInt = find(filtData>(p.thresholds));
+            spotsOfInt = find(energy>(p.thresholds));
             detStart = max((((spotsOfInt - p.buff)/hdr.fs)+startK),startK);
             detStop = min((((spotsOfInt + p.buff)/hdr.fs)+startK),stopK);
              

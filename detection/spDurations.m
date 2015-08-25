@@ -29,7 +29,7 @@ if length(startPositions) > 1
     stopPositions = [startPositions(2:end) - 1; length(Indices)];
     stop = Indices(stopPositions);
 else
-    stop = Indices(startPositions) + 1;
+    stop = min(Indices(startPositions)+1,idxMax);
 end
 
 

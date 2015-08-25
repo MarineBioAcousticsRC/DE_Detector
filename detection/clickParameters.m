@@ -52,9 +52,9 @@ for c = 1:size(clicks,1)
     yFilt{c} = wideBandData(clicks(c,1):clicks(c,2));
     %convert  timeseries into counts
     if strcmp(hdr.fType, 'xwav')
-        click = yFilt{c}*2^14;
-        clickBuff = yFiltBuff{c}*2^14;
-        noise = yNFilt*2^14; % convert to counts
+        click = yFilt{c};%*2^14;
+        clickBuff = yFiltBuff{c};%*2^14;
+        noise = yNFilt;%*2^14; % convert to counts
     else
         click = yFilt{c}*2^15; % array needs 2^15 to convert into counts. 
         % Unclear what the cause of this is.
@@ -183,8 +183,8 @@ for c = 1:size(clicks,1)
     %out to be about 9dB lower than value of spectra at peak frequency)
     
     % find lowest and highest number in timeseries (counts) and add those
-    high = max(yFilt{c}.');
-    low = min(yFilt{c}.');
+    high = max(click.');
+    low = min(click.');
     ppCount = high+abs(low);
     
     %calculate dB value of counts and add transfer function value at peak

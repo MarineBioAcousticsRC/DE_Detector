@@ -4,11 +4,11 @@ function [wideBandData] = dGet_filtered_data(fid,start,stop,hdr,...
 wideBandTaps = length(fB);
 duration = stop - start;
 duration_samples = duration * hdr.fs;
-if duration_samples < 3*wideBandTaps
+if duration_samples <= 3*wideBandTaps
     % if data is too short for our filter, read a little more
     % on either side making sure not to go past the beginning/
     % end of file.
-    pad_s = length(fB) / hdr.fs;
+    pad_s = (length(fB)*3) / hdr.fs;
     start = max(0, start - pad_s);
     stop = stop + pad_s;
     if hdr.start.dnum + datenum([0 0 0 0 0 stop]) > hdr.end.dnum
@@ -20,5 +20,5 @@ end
 data = ioReadXWAV(fid, hdr, start, stop, channel, fullFiles);
 
 % filter the data
-wideBandData = filter(fB,fA,data);
-wideBandData = wideBandData(wideBandTaps+1:end);
+wideBandData = filter(fB,fA,data,[],2);
+wideBandData = wideBandData(:,wideBandTaps+1:end);

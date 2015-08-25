@@ -3,10 +3,12 @@ function [previousFs,fftSize,fftWindow,binWidth_Hz,freq_kHz,...
 
 % On first pass, or if a file has a different sampling rate than the
 % previous, rebuild the high pass filter
-
+% fA=1;
 [fB,fA] = butter(5, p.bpRanges./(fs/2));
+% fB = spBuildEquiRippleFIR([10000,12000], [0, 1], 'Fs', fs);
+
+%[fA,fB] = ellip(4,0.1,40,p.bpRanges.*2/fs,'bandpass');
 % filtTaps = length(fB);
-    
 previousFs = fs;
 
 fftSize = ceil(fs * p.frameLengthUs / 1E6);
