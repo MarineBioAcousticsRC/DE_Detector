@@ -4,18 +4,18 @@ function [clickTimes,ppSignalVec,durClickVec,bw3dbVec,yNFiltVec,yFiltVec,...
     specRange,p,hdr,fullFiles,fftWindow,fullLabel)
 
 % Initialize vectors for main detector loop
-clickTimes = nan(5E6,2);
-ppSignalVec = nan(5E6,1);
-durClickVec = nan(5E6,1);
+clickTimes = nan(5E5,2);
+ppSignalVec = nan(5E5,1);
+durClickVec = nan(5E5,1);
 bw3dbVec = [];
-yNFiltVec = cell(5E6,1);
-yFiltVec = cell(5E6,1);
-specClickTfVec = cell(5E6,1);
-specNoiseTfVec = cell(5E6,1);
-peakFrVec = nan(5E6,1);
-yFiltBuffVec = cell(5E6,1);
-deltaEnvVec = nan(5E6,1);
-nDurVec = nan(5E6,1);
+yNFiltVec = cell(5E5,1);
+yFiltVec = cell(5E5,1);
+specClickTfVec = cell(5E5,1);
+specNoiseTfVec = cell(5E5,1);
+peakFrVec = nan(5E5,1);
+yFiltBuffVec = cell(5E5,1);
+deltaEnvVec = nan(5E5,1);
+nDurVec = nan(5E5,1);
 f = [];
 sIdx = 1;
 eIdx = 0;
@@ -54,7 +54,9 @@ for k = 1:numStarts % stepping through using the start/end points
             % Write out .cTg file
             [clkStarts,clkEnds] = dProcess_valid_clicks(clicks,clickInd,...
                 starts(k),hdr,fidOut,fB);
-            
+            if sIdx == 867
+                1;
+            end
             eIdx = sIdx + size(nDur,1)-1;
             clickTimes(sIdx:eIdx,1:2) = [clkStarts,clkEnds];
             ppSignalVec(sIdx:eIdx,1) = ppSignal;

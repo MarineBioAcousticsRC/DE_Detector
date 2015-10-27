@@ -2,7 +2,7 @@ function dHighres_click_batch(fullFiles,fullLabels,inDisk,p,viewPath,tfFullFile)
 
 N = length(fullFiles);
 
-parfor idx1 = 1:19 % for each data file
+parfor idx1 = 1:N % for each data file
     previousFs = 0; % make sure we build filters on first pass
     %(has to be inside loop for parfor, ie, filters are rebuilt every time,
     % can be outside for regular for)

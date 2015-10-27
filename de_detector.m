@@ -19,30 +19,30 @@ function de_detector
 % See those files for info on settings.
 
 % clearvars
-close all
+% close all
 fclose all;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-tfFullFile = 'E:\Code\TF_files\585_091116_invSensit_MC.tf';
-% tfFullFile = 'E:\Code\TF_files\610_100527_DT07B\610_100527_invSensit.tf';
+% tfFullFile = 'E:\Code\TF_files\585_091116_invSensit_MC.tf';
+tfFullFile = 'E:\Code\TF_files\HF420_070904_sig1\HF420_070904_sig1_invSensit.tf';
 % Note, if you don't have a transfer function just use:
 % tfFullFile = [];
 
 % Location of base directory containing directories of files to be analyzed
-baseDir = 'I:\GofMX_DT07B';
+baseDir = 'G:\GofMXArraySpRecs\Lh\';
 
 % Optional output directory location. Metadata directory will be created in outDir
 % if specified, otherwise it will be created in baseDir.
 % outDir = '<your path here>';
-outDir  = 'I:\GofMX_DT07B\channel4'; 
+outDir  = 'G:\GofMXArraySpRecs\Lh\NI250'; 
 
 % Name of the deployment. This should be the first few characters in the 
 % directory(ies) you want to look in you want to look at. For now,
 % directory hierarchy is expected to be: basedir>depl*>*.x.wav
 % TODO: implement recursive directory search for more flexibility.
-depl = 'GofMX';
+depl = '250kHz';
 
 % Set flags indicating which routines to run. 
 lowResDet = 1; %run short time detector.
@@ -67,7 +67,7 @@ if ~isempty(detFiles)
     % Short time detector
     if lowResDet == 1
         % load settings
-        parametersST = dLoad_STsettings_DT07B;
+        parametersST = dLoad_STsettings;
         % run detector
         dtST_batch(baseDir,detFiles,parametersST,viewPath);
     end
@@ -75,7 +75,7 @@ if ~isempty(detFiles)
     % High res detector
     if highResDet == 1
         % load settings
-        parametersHR = dLoad_HRsettings_DT07B;
+        parametersHR = dLoad_HRsettings;
         % run detector
         dHighres_click_batch(fullFiles,fullLabels,storeDir,parametersHR,viewPath,tfFullFile)
     end

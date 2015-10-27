@@ -56,10 +56,10 @@ for c = 1:size(clicks,1)
         clickBuff = yFiltBuff{c};%*2^14;
         noise = yNFilt;%*2^14; % convert to counts
     else
-        click = yFilt{c}*2^15; % array needs 2^15 to convert into counts. 
+        click = yFilt{c};%*2^15; % array needs 2^15 to convert into counts. 
         % Unclear what the cause of this is.
-        clickBuff = yFiltBuff{c}*2^15;
-        noise = yNFilt*2^15; % convert to counts
+        clickBuff = yFiltBuff{c};%*2^15;
+        noise = yNFilt;%*2^15; % convert to counts
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Calculate duration in seconds
@@ -73,13 +73,20 @@ for c = 1:size(clicks,1)
     spClick = 20*log10(abs(fft(wClick,N)));
     
     % Compute noise spectrum
-    windNoise = hann(N);
-    wNoise = [];
-    for itr1 = 1:1:floor(length(noise)/N)
-        wNoise(:,itr1) = noise(1,((itr1-1)*N)+1:((itr1-1)*N)+N).*windNoise.';
-    end
+    noiseWLen = length(noise);
+    noiseWin = hann(noiseWLen);
+    wNoise = zeros(1,N);
+    wNoise(1:noiseWLen) = noiseWin.*noise.';
+    spNoise = 20*log10(abs(fft(wNoise,N)));
     
-    spNoise = mean(20*log10(abs(fft(wNoise,N)))',1);
+%     wNoise = [];
+%     for itr1 = 1:1:ceil(length(noise)/N)
+%         n
+%         wNoise(:,itr1) = noise(1,((itr1-1)*N)+1:...
+%             min(length(wNoise)((itr1-1)*N)+N).*windNoise.';
+%     end
+    
+%    spNoise = mean(20*log10(abs(fft(wNoise,N)))',1);
 
     % account for bin width
     sub = 10*log10(hdr.fs/N);
@@ -220,6 +227,8 @@ for idx = 1:length(ppSignal)
         validClicks(idx) = 0; 
     elseif sum(tfVec)>0   
         validClicks(idx) = 0; 
+        %plot(yFilt{idx})
+        %1;
     end
     
 end
