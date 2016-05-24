@@ -2,7 +2,7 @@ function parametersHR = dLoad_HRsettings
 
 %%% Filter and FFT params %%
 parametersHR.bpRanges = [12000,90000]; % Bandpass filter params in Hz [min,max]
-parametersHR.frameLengthUs = 2048;%1024(HARP); % For fft computation
+parametersHR.frameLengthUs = 1024;%1024(HARP); % For fft computation
 parametersHR.overlap = .5; % FFT overlap (in decimal, not percent form)
 parametersHR.chan = 1; % which channel do you want to look at?
 parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1.  If empty, 
@@ -10,8 +10,8 @@ parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1. 
 
 
 %%% Recieved level threshold params %%%
-parametersHR.ppThresh = 50;% minimum  RL threshold - dB peak to peak.
-parametersHR.countThresh = 4000; % Keep consistent with Lo-res for predictability.
+parametersHR.ppThresh = 112;% minimum  RL threshold - dB peak to peak.
+parametersHR.countThresh = 5000; % Keep consistent with Lo-res for predictability.
 % Can be higher than low res, but not lower!
 % Keep count threshold less than equivalent pp threshold. 
 %   dBs = 10*log10(abs(fft(counts *2^14))) - 10*log10(fs/(length(fftWindow)))...
@@ -25,7 +25,7 @@ parametersHR.dEvLims = [-.2,.9];  % [min,max] Envelope energy distribution compa
 % more energy in the first half of the click (dolphin) dEv >0, If it's more
 % in the second half (boats?) dEv<0. If it's about the same (beaked whale)
 % dEnv ~= 0 , but still allow a range...
-parametersHR.delphClickDurLims = [.7,10];% [min,max] duration in microsec 
+parametersHR.delphClickDurLims = [30,300];% [min,max] duration in microsec 
 % allowed for high energy envelope of click
 
 

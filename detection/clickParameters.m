@@ -19,16 +19,19 @@ function [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize variables
-
 N = length(fftWindow);
+f = 0:((hdr.fs/2)/1000)/((N/2)-1):((hdr.fs/2)/1000);
+f = f(specRange);
+
+
 ppSignal = zeros(size(clicks,1),1);
 durClick =  zeros(size(clicks,1),1);
 bw3db = zeros(size(clicks,1),3);
 yNFilt = [];
 yFilt = cell(size(clicks,1),1);
-specClickTf = cell(size(clicks,1),1);
+specClickTf = zeros(size(clicks,1),length(f));
 yFiltBuff = cell(size(clicks,1),1);
-specNoiseTf = cell(size(clicks,1),1);
+specNoiseTf = zeros(size(clicks,1),length(f));
 peakFr = zeros(size(clicks,1),1);
 cDLims = ceil([p.minClick_us, p.maxClick_us]./(hdr.fs/1e6));
 envDurLim = ceil(p.delphClickDurLims.*(hdr.fs/1e6));
@@ -45,7 +48,7 @@ for itr = 1:min([30,size(noiseIn,1)])
     yNFilt = [yNFilt,wideBandData(nStart:nEnd)];
 end
 
-buffVal = ceil(hdr.fs*.0001); % Add small buffer, here, I want .25 ms, so computing how many samples to use.
+buffVal = hdr.fs*.00025; % Add small buffer, here, I want .25 ms, so computing how many samples to use.
 for c = 1:size(clicks,1)
     % Pull out band passed click timeseries
     yFiltBuff{c} = wideBandData(max(clicks(c,1)-buffVal,1):min(clicks(c,2)+buffVal,size(wideBandData,2)));
@@ -79,15 +82,7 @@ for c = 1:size(clicks,1)
     wNoise(1:noiseWLen) = noiseWin.*noise.';
     spNoise = 20*log10(abs(fft(wNoise,N)));
     
-%     wNoise = [];
-%     for itr1 = 1:1:ceil(length(noise)/N)
-%         n
-%         wNoise(:,itr1) = noise(1,((itr1-1)*N)+1:...
-%             min(length(wNoise)((itr1-1)*N)+N).*windNoise.';
-%     end
     
-%    spNoise = mean(20*log10(abs(fft(wNoise,N)))',1);
-
     % account for bin width
     sub = 10*log10(hdr.fs/N);
     spClickSub = spClick-sub;
@@ -97,14 +92,14 @@ for c = 1:size(clicks,1)
     spClickSub = spClickSub(:,1:N/2);
     spNoiseSub = spNoiseSub(:,1:N/2);
     
-    specClickTf{c} = spClickSub(specRange)'+PtfN;
-    specNoiseTf{c} = spNoiseSub(specRange)'+PtfN;
+    specClickTf(c,:) = spClickSub(specRange)+PtfN;
+    specNoiseTf(c,:) = spNoiseSub(specRange)+PtfN;
     
     %%%%%
     % calculate peak click frequency
     % max value in the first half samples of the spectrogram
     
-    [valMx, posMx] = max(specClickTf{c});
+    [valMx, posMx] = max(specClickTf(c,:)); 
     peakFr(c) = f(posMx); %peak frequency in kHz
     
     %%%%%%%%%%%%%%%%%
@@ -163,8 +158,8 @@ for c = 1:size(clicks,1)
     %calculation of -3dB bandwidth - amplitude associated with the halfpower points of a pressure pulse (see Au 1993, p.118);
     low = valMx-3; %p1/2power = 10log(p^2max/2) = 20log(pmax)-3dB = 0.707*pmax; 1/10^(3/20)=0.707
     %walk along spectrogram until low is reached on either side
-    slopeup=fliplr(specClickTf{c}(1:posMx));
-    slopedown=specClickTf{c}(posMx:round(length(specClickTf{c})));
+    slopeup=fliplr(specClickTf(c,1:posMx));
+    slopedown=specClickTf(c,posMx:round(length(specClickTf(c,:))));
     for e3dB=1:length(slopeup)
         if slopeup(e3dB)<low %stop at value < -3dB: point of lowest frequency
             break
@@ -177,8 +172,8 @@ for c = 1:size(clicks,1)
     end
     
     %calculation from spectrogram -> from 0 to 100kHz in 256 steps (FFT=512)
-    high3dB = (hdr.fs/(2*1000))*((posMx+o3dB)/(length(specClickTf{c}))); %-3dB highest frequency in kHz
-    low3dB = (hdr.fs/(2*1000))*(posMx-e3dB)/(length(specClickTf{c})); %-3dB lowest frequency in kHz
+    high3dB = (hdr.fs/(2*1000))*((posMx+o3dB)/length(specClickTf(c,:))); %-3dB highest frequency in kHz
+    low3dB = (hdr.fs/(2*1000))*((posMx-e3dB)/length(specClickTf(c,:))); %-3dB lowest frequency in kHz
     bw3 = high3dB-low3dB;
     
     bw3db(c,:)= [low3dB, high3dB, bw3];
@@ -219,7 +214,7 @@ for idx = 1:length(ppSignal)
              peakFr(idx) > p.cutPeakAboveKHz;...
              nDur(idx)>  (envDurLim(2));...
              nDur(idx)<  (envDurLim(1));...
-             durClick(idx) > cDLims(2)];
+             bw3db(idx,3) < p.bw3dbMin];
 %          plot(yFiltBuff{idx})
 %          title(sum(tfVec))
 %          1;
@@ -227,10 +222,6 @@ for idx = 1:length(ppSignal)
         validClicks(idx) = 0; 
     elseif sum(tfVec)>0   
         validClicks(idx) = 0; 
-%         plot(yFiltBuff{idx})
-%         1;
-    else 
-        1;
     end
     
 end
@@ -243,8 +234,8 @@ bw3db = bw3db(clickInd,:);
 % frames = frames{clickInd};
 yFilt = yFilt(clickInd);
 yFiltBuff = yFiltBuff(clickInd);
-specClickTf = specClickTf(clickInd);
-specNoiseTf = {specNoiseTf{clickInd}};
+specClickTf = specClickTf(clickInd,:);
+specNoiseTf = specNoiseTf(clickInd,:);
 peakFr = peakFr(clickInd,:);
 yNFilt = {yNFilt};
 deltaEnv = deltaEnv(clickInd,:);

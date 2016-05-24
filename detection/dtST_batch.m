@@ -7,7 +7,7 @@ function dtST_batch(baseDir,detFiles,p,viewPath)
 
 N = size(detFiles,1);
 
-parfor idx = 1:N  % "parfor" works here, parallellizing the process across as
+for idx = 1:N  % "parfor" works here, parallellizing the process across as
     % many cores as your machine has available.
     % It's faster, but the drawback is that if the code crashes,
     % it's hard to figure out where it was, and how many files

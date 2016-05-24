@@ -4,18 +4,18 @@ function [clickTimes,ppSignalVec,durClickVec,bw3dbVec,yNFiltVec,yFiltVec,...
     specRange,p,hdr,fullFiles,fftWindow,fullLabel)
 
 % Initialize vectors for main detector loop
-clickTimes = nan(5E5,2);
-ppSignalVec = nan(5E5,1);
-durClickVec = nan(5E5,1);
+clickTimes = nan(1E5,2);
+ppSignalVec = nan(1E5,1);
+durClickVec = nan(1E5,1);
 bw3dbVec = [];
-yNFiltVec = cell(5E5,1);
-yFiltVec = cell(5E5,1);
-specClickTfVec = cell(5E5,1);
-specNoiseTfVec = cell(5E5,1);
-peakFrVec = nan(5E5,1);
-yFiltBuffVec = cell(5E5,1);
-deltaEnvVec = nan(5E5,1);
-nDurVec = nan(5E5,1);
+yNFiltVec = cell(1E5,1);
+yFiltVec = cell(1E5,1);
+specClickTfVec = nan(1E5,length(specRange));
+specNoiseTfVec = nan(1E5,length(specRange));
+peakFrVec = nan(1E5,1);
+yFiltBuffVec = cell(1E5,1);
+deltaEnvVec = nan(1E5,1);
+nDurVec = nan(1E5,1);
 f = [];
 sIdx = 1;
 eIdx = 0;
@@ -34,7 +34,7 @@ for k = 1:numStarts % stepping through using the start/end points
     % Look for click candidates
     [clicks, noise] = dHighres_click(p, hdr, wideBandData);
     
-    if ~isempty(clicks)
+    if ~ isempty(clicks)
         % if we're in here, it's because we detected one or more possible
         % clicks in the kth segment of data
         % Make sure our click candidates aren't clipped
@@ -48,13 +48,13 @@ for k = 1:numStarts % stepping through using the start/end points
         [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
             specNoiseTf,peakFr,yFiltBuff,f,deltaEnv,nDur] = ...
             clickParameters(noise,wideBandData,p,...
-            fftWindow,xfrOffset,clicks,specRange,hdr);
+            fftWindow,xfrOffset',clicks,specRange,hdr);
         
         if ~isempty(clickInd)
             % Write out .cTg file
             [clkStarts,clkEnds] = dProcess_valid_clicks(clicks,clickInd,...
                 starts(k),hdr,fidOut,fB);
-           
+            
             eIdx = sIdx + size(nDur,1)-1;
             clickTimes(sIdx:eIdx,1:2) = [clkStarts,clkEnds];
             ppSignalVec(sIdx:eIdx,1) = ppSignal;
@@ -62,8 +62,8 @@ for k = 1:numStarts % stepping through using the start/end points
             bw3dbVec(sIdx:eIdx,:) = bw3db;
             yNFiltVec(sIdx:eIdx,:) = yNFilt';
             yFiltVec(sIdx:eIdx,:)= yFilt';
-            specClickTfVec(sIdx:eIdx,1) = specClickTf';
-            specNoiseTfVec(sIdx:eIdx,1) = specNoiseTf';
+            specClickTfVec(sIdx:eIdx,:) = specClickTf;
+            specNoiseTfVec(sIdx:eIdx,:) = specNoiseTf;
             peakFrVec(sIdx:eIdx,1) = peakFr;
             yFiltBuffVec(sIdx:eIdx,:) = yFiltBuff';
             deltaEnvVec(sIdx:eIdx,1) = deltaEnv;
