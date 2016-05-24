@@ -41,7 +41,9 @@ elseif strcmp(hdr.fType, 'xwav')
     
     % find the correct raw file:
     rawIdx = find(rawStarts<=start_s,1,'last');
-    
+    if isempty(rawIdx)
+        rawIdx = 1;
+    end
     % how much additional data do you need to skip?
     skip = floor((start_s-rawStarts(rawIdx)) * hdr.fs); % offset into data
     samples = floor((stop_s - start_s) * hdr.fs);
@@ -54,8 +56,9 @@ elseif strcmp(hdr.fType, 'xwav')
     if hdr.xgain > 0
         data = data ./ hdr.xgain(1);
     end
-    data = data(channels,:);  % Select specific channel(s)
-    
+    if ~isempty(data)
+        data = data(channels,:);  % Select specific channel(s)
+    end 
 else
     error('Bad file type');
 end

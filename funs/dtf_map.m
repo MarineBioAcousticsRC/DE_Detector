@@ -25,6 +25,6 @@ if fid ~=-1
     end
 else
     msg = sprintf('Unable to open transfer function %s',tf_fname);
-    error('TRANSFER_FN', msg);
+    error(msg);
 end
 
