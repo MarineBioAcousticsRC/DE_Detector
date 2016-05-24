@@ -22,5 +22,5 @@ if ~ isempty(candidatesRel)
             sStarts,sStops,energy,bpDataHi);
     
     completeClicks = [c_starts, c_stops];
-
+    %completeClicks = [sStarts, sStops];
 end

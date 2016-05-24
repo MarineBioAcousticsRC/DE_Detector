@@ -31,7 +31,7 @@ yFiltBuff = cell(size(clicks,1),1);
 specNoiseTf = cell(size(clicks,1),1);
 peakFr = zeros(size(clicks,1),1);
 cDLims = ceil([p.minClick_us, p.maxClick_us]./(hdr.fs/1e6));
-envDurLim = ceil(p.delphClickDurLims./(hdr.fs/1e6));
+envDurLim = ceil(p.delphClickDurLims.*(hdr.fs/1e6));
 nDur = zeros(size(clicks,1),1);
 deltaEnv = zeros(size(clicks,1),1);
 
@@ -45,7 +45,7 @@ for itr = 1:min([30,size(noiseIn,1)])
     yNFilt = [yNFilt,wideBandData(nStart:nEnd)];
 end
 
-buffVal = hdr.fs*.00025; % Add small buffer, here, I want .25 ms, so computing how many samples to use.
+buffVal = ceil(hdr.fs*.0001); % Add small buffer, here, I want .25 ms, so computing how many samples to use.
 for c = 1:size(clicks,1)
     % Pull out band passed click timeseries
     yFiltBuff{c} = wideBandData(max(clicks(c,1)-buffVal,1):min(clicks(c,2)+buffVal,size(wideBandData,2)));
@@ -104,7 +104,7 @@ for c = 1:size(clicks,1)
     % calculate peak click frequency
     % max value in the first half samples of the spectrogram
     
-    [valMx, posMx] = max(specClickTf{c}(1:end-1)); % ignore last point - bandpass issue
+    [valMx, posMx] = max(specClickTf{c});
     peakFr(c) = f(posMx); %peak frequency in kHz
     
     %%%%%%%%%%%%%%%%%
@@ -227,8 +227,10 @@ for idx = 1:length(ppSignal)
         validClicks(idx) = 0; 
     elseif sum(tfVec)>0   
         validClicks(idx) = 0; 
-        %plot(yFilt{idx})
-        %1;
+%         plot(yFiltBuff{idx})
+%         1;
+    else 
+        1;
     end
     
 end

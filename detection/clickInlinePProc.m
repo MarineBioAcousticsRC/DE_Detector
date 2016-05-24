@@ -9,51 +9,51 @@ function [delFlag] = clickInlinePProc(outFileName,clickTimes,p)
 
 % % % Get rid of lone clicks % % %
 
-% Step through deleting clicks that are too far from their preceeding
-% and following click
-clickTimesPruned = [];
-
-clickTimes = sortrows(clickTimes);
-if size(clickTimes,1) > 2
-    delFlag = ones(size(clickTimes(:,1)));
-    for itr1 = 1:size(clickTimes,1)
-        if itr1 == 1
-            if clickTimes(itr1+2,1)-clickTimes(itr1,1)>p.maxNeighbor
-                delFlag(itr1) = 0;
-            end
-        elseif itr1 >= size(clickTimes,1)-1
-            [I,~] = find(delFlag(1:itr1-1)==1);
-            prevClick = max(I);
-            if isempty(prevClick)
-                delFlag(itr1) = 0;
-            elseif clickTimes(itr1,1) - clickTimes(prevClick,1)>p.maxNeighbor
-                delFlag(itr1) = 0;
-            end
-        else
-            [I,~] = find(delFlag(1:itr1-1)==1);
-            prevClick = max(I);
-            if isempty(prevClick)
-                if clickTimes(itr1+2,1) - clickTimes(itr1,1)>p.maxNeighbor
-                    delFlag(itr1) = 0;
-                end
-            elseif clickTimes(itr1,1)- clickTimes(prevClick,1)>p.maxNeighbor &&...
-                    clickTimes(itr1+2,1)-clickTimes(itr1,1)>p.maxNeighbor
-                delFlag(itr1) = 0;
-            end
-        end
-    end
-    clickTimesPruned = clickTimes(delFlag==1,:);
-elseif ~isempty(clickTimes)
-    delFlag = zeros(size(clickTimes(:,1)));
-else 
+% % Step through deleting clicks that are too far from their preceeding
+% % and following click
+% clickTimesPruned = [];
+% 
+% clickTimes = sortrows(clickTimes);
+% if size(clickTimes,1) > 2
+%     delFlag = ones(size(clickTimes(:,1)));
+%     for itr1 = 1:size(clickTimes,1)
+%         if itr1 == 1
+%             if clickTimes(itr1+2,1)-clickTimes(itr1,1)>p.maxNeighbor
+%                 delFlag(itr1) = 0;
+%             end
+%         elseif itr1 >= size(clickTimes,1)-1
+%             [I,~] = find(delFlag(1:itr1-1)==1);
+%             prevClick = max(I);
+%             if isempty(prevClick)
+%                 delFlag(itr1) = 0;
+%             elseif clickTimes(itr1,1) - clickTimes(prevClick,1)>p.maxNeighbor
+%                 delFlag(itr1) = 0;
+%             end
+%         else
+%             [I,~] = find(delFlag(1:itr1-1)==1);
+%             prevClick = max(I);
+%             if isempty(prevClick)
+%                 if clickTimes(itr1+2,1) - clickTimes(itr1,1)>p.maxNeighbor
+%                     delFlag(itr1) = 0;
+%                 end
+%             elseif clickTimes(itr1,1)- clickTimes(prevClick,1)>p.maxNeighbor &&...
+%                     clickTimes(itr1+2,1)-clickTimes(itr1,1)>p.maxNeighbor
+%                 delFlag(itr1) = 0;
+%             end
+%         end
+%     end
+%     clickTimesPruned = clickTimes(delFlag==1,:);
+if ~isempty(clickTimes)
+     delFlag = ones(size(clickTimes(:,1)));
+ else 
     delFlag = [];
-end
+ end
 % TODO: Get rid of pulsed calls
-
+clickTimesPruned = clickTimes;
 % get rid of duplicate times:
 if size(clickTimesPruned,1)>1
     dtimes = diff(clickTimesPruned(:,1));
-    closeStarts = find(dtimes<.00002);
+    closeStarts = find(dtimes<(p.mergeThr*10e-5));
     delFlag(closeStarts+1,:) = 0;
 end
 

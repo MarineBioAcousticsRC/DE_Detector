@@ -113,6 +113,7 @@ else
     [~,shortName,~] = fileparts(Filename);
     % determine timestamp
     [~,~,~,~,k] = regexp(shortName, DateRE);
+    if ~isempty(k)
     catDate = cell2mat(k{1});
     hdr.start.dvec = [str2double(catDate(1:4)),str2double(catDate(5:6)),...
         str2double(catDate(7:8)),str2double(catDate(9:10)),...
@@ -127,6 +128,8 @@ else
     
     samplesN = hdr.xhd.byte_length ./ (hdr.nch * hdr.samp.byte);
     hdr.end.dnum = hdr.start.dnum + datenum([0 0 0 0 0 samplesN/hdr.fs]);
+    else return
+    end
 end
 hdr.start.dvec = datevec(hdr.start.dnum);
 

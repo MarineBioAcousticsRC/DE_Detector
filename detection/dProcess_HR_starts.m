@@ -34,7 +34,7 @@ for k = 1:numStarts % stepping through using the start/end points
     % Look for click candidates
     [clicks, noise] = dHighres_click(p, hdr, wideBandData);
     
-    if ~ isempty(clicks)
+    if ~isempty(clicks)
         % if we're in here, it's because we detected one or more possible
         % clicks in the kth segment of data
         % Make sure our click candidates aren't clipped
@@ -54,9 +54,7 @@ for k = 1:numStarts % stepping through using the start/end points
             % Write out .cTg file
             [clkStarts,clkEnds] = dProcess_valid_clicks(clicks,clickInd,...
                 starts(k),hdr,fidOut,fB);
-            if sIdx == 867
-                1;
-            end
+           
             eIdx = sIdx + size(nDur,1)-1;
             clickTimes(sIdx:eIdx,1:2) = [clkStarts,clkEnds];
             ppSignalVec(sIdx:eIdx,1) = ppSignal;

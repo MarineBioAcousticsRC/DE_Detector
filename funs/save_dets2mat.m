@@ -1,7 +1,7 @@
 function save_dets2mat(fileName,clickTimes,ppSignal,durClick,f,hdr,nDur,deltaEnv,...
-    yNFilt,specNoiseTf,bw3db,yFilt,specClickTf,peakFr,yFiltBuff);%
+    yNFilt,specNoiseTf,bw3db,yFilt,specClickTf,peakFr,yFiltBuff)
 
 % Can't save directly in parfor loop, so save externally
 save(fileName,'clickTimes','ppSignal','durClick','f','hdr','nDur',...
     'deltaEnv','yNFilt','specNoiseTf','bw3db','yFilt','specClickTf',...
-    'peakFr','yFiltBuff','-mat');
+    'peakFr','yFiltBuff','-mat','-v7.3');
