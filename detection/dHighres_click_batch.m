@@ -23,6 +23,8 @@ parfor idx1 = 1:N % for each data file
         xfr_f = (specRange(1)-1)*binWidth_Hz:binWidth_Hz:(specRange(end)-1)*binWidth_Hz;
         if ~isempty(tfFullFile)
             [xfr_f, xfrOffset] = dtf_map(tfFullFile, xfr_f);
+             p.countThresh = (10^((p.ppThresh-max(xfrOffset))./20))^2;
+
         else
             % if you didn't provide a tf function, then just create a
             % vector of zeros of the right size.
