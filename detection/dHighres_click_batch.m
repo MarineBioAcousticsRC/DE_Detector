@@ -40,7 +40,7 @@ for idx1 = 1:N % for each data file
     
     if exist(labelFile,'file')
         % Read in the .c file produced by the short term detector.
-        [starts,stops,~] = ioReadLabelFile(labelFile);
+        [starts,stops] = ioReadLabelFile(labelFile);
     else
         continue
     end
