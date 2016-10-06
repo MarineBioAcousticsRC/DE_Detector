@@ -84,19 +84,18 @@ if p.guidedDetector
             thisStart = clickDnum(itr2,1);
             thisEnd = clickDnum(itr2,2);
             afterStarts = find(encounterTimes(:,1)> thisStart);
-            firstAfterStart = min(afterStarts);
+            firstAfterStart = min(afterStarts); % this is the start of the guided period it should be in
             beforeEnd = find(encounterTimes(:,2)> thisEnd);
             firstBeforeEnd = min(beforeEnd);
-            if firstAfterStart ~= firstBeforeEnd+1;
+            if firstAfterStart ~= firstBeforeEnd;
                 %Then this click does not fall within an encounter, chuck it
                 delFlag(itr2) = 0;
             end
         end
     else
-        error('Error: There are no encounter times to use for pruning')
+        fprintf('No times to prune.\n')
     end
 end
-
 
 clickTimesPruned = clickTimes(delFlag==1,:); % apply deletions
 

@@ -25,10 +25,9 @@ fclose all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-% tfFullFile = 'E:\Code\TF_files\TF Files\HARP\600_series\667_111028\667_111028_invSensit.tf';
-% tfFullFile = 'E:\Code\TF_files\610_100527_DT07B\610_100527_invSensit.tf';
+tfFullFile = 'E:\Code\TF_files\Recalculated\tf files\740_140303\740_140303_invSensit.tf';
 % Note, if you don't have a transfer function just use:
-tfFullFile = [];
+% tfFullFile = [];
 
 % Location of base directory containing directories of files to be analyzed
 baseDir = 'H:\';
@@ -87,8 +86,6 @@ else
     encounterTimes = [];
 end
 
-viewPath = {metaDir, baseDir};
-
 % return a list of files to be built
 [fullFiles,fullLabels] = get_fileset(baseDir,metaDir,detFiles); 
 
@@ -107,8 +104,8 @@ if ~isempty(detFiles)
     % High res detector
     if highResDet
         tic
-        dHighres_click_batch(fullFiles,fullLabels,storeDir,paramsHR,...
-            metaDir,baseDir,tfFullFile,encounterTimes)
+        dHighres_click_batch(fullFiles,fullLabels,paramsHR,...
+            tfFullFile,encounterTimes)
         display('Done with high-res detector\n')
         toc
     end

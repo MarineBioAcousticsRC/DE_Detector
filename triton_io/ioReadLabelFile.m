@@ -9,6 +9,8 @@ fseek(fileh, 0, 'eof');   % Find length of file
 eofposn = ftell(fileh);
 fseek(fileh, 0, 'bof');
 
+Starts = [];
+Stops = [];
 % Loop through file, reading each line
 moretoread = true;
 while moretoread

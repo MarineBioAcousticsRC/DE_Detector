@@ -1,5 +1,5 @@
-function dHighres_click_batch(fullFiles,fullLabels,inDisk,p,...
-    metaDir,baseDir,tfFullFile, encounterTimes)
+function dHighres_click_batch(fullFiles,fullLabels,p,...
+    tfFullFile, encounterTimes)
 
 N = length(fullFiles);
 for idx1 = 1:N % for each data file
@@ -45,7 +45,7 @@ for idx1 = 1:N % for each data file
         continue
     end
     % Open xwav file
-    fid = fopen(recFile, viewPath, 'r');
+    fid = fopen(recFile, 'r');
     
     % Look for clicks, hand back parameters of retained clicks
     [cParams,f] = dProcess_HR_starts(fid,starts,stops,...
@@ -86,6 +86,6 @@ for idx1 = 1:N % for each data file
     end
     save_dets2mat(strrep(labelFile,'.c','.mat'),clickTimes,...
         ppSignal,durClick,f,hdr,nDur,deltaEnv,yNFilt,specNoiseTf,bw3db,...
-        yFilt,specClickTf,peakFr,yFiltBuff,p,xfrOffset);
+        yFilt,specClickTf,peakFr,yFiltBuff,p);
     
 end
