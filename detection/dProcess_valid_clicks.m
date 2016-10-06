@@ -1,6 +1,6 @@
 function [clkStart,clkEnd]= dProcess_valid_clicks(clicks,clickInd,startsK,hdr,...
-    fidOut,wideBandFilter)
-
+    fidOut,p)
+% Write click times to .ctg label file
 
 clkStart = nan(length(clickInd),1);
 clkEnd = nan(length(clickInd),1);
@@ -12,8 +12,8 @@ for c = 1:length(clickInd)
     if ~isempty(currentClickEnd)
         % If true write individual click annotations to .ctg file
         fprintf(fidOut, '%f %f \n', ...
-            currentClickStart + length(wideBandFilter)/2/hdr.fs, ...
-            currentClickEnd + length(wideBandFilter)/2/hdr.fs);
+            currentClickStart + length(p.fB)/2/hdr.fs, ...
+            currentClickEnd + length(p.fB)/2/hdr.fs);
     end
     
     % Compute parameters of click frames

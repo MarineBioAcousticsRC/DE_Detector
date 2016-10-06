@@ -1,12 +1,11 @@
-function parametersST = dLoad_STsettings
+function parametersST = dLoad_STsettings_DT07B
 % Assign short term detector settings
 
 parametersST.buff = 500; % # of buffer samples to add on either side of area of interest
-parametersST.chan = 1; % which channel do you want to look at?
+parametersST.chan = 4; % which channel do you want to look at?
 
-parametersST.fRanges = [10000 90000]; 
-parametersST.filterOrder = 5; % butterworth filter order used for band pass
-parametersST.thresholds = 10000; % Amplitude threshold in counts. 
+parametersST.fRanges = [15000 48000]; 
+parametersST.thresholds = 2000; % Amplitude threshold in counts. 
 % For predictability, keep this consistent between low and hi res steps.
 
 parametersST.frameLengthSec = .01; %Used for calculating fft size
@@ -29,6 +28,4 @@ parametersST.DateRE = '_(\d*)_(\d*)';
 %         parametersST.DateRE = '(\d{4})-\d{2}(\d{4})-(\d{6})';
 % 
 
-%%%%% GUIDED DETECTIONS? %%%%
-parametersST.guidedDetector = 1; % flag to 1 if guided
 

@@ -1,35 +1,33 @@
-function [clickTimes,ppSignalVec,durClickVec,bw3dbVec,yNFiltVec,yFiltVec,...
-    specClickTfVec, specNoiseTfVec, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
-    = dProcess_HR_starts(fid, fB,fA,starts,stops,channel,xfrOffset,...
-    specRange,p,hdr,fullFiles,fftWindow,fullLabel)
+function [cParams,f] = dProcess_HR_starts(fid,starts,stops,...
+    p,hdr,recFile,labelFile)
 
 % Initialize vectors for main detector loop
-clickTimes = nan(1E5,2);
-ppSignalVec = nan(1E5,1);
-durClickVec = nan(1E5,1);
-bw3dbVec = [];
-yNFiltVec = cell(1E5,1);
-yFiltVec = cell(1E5,1);
-specClickTfVec = nan(1E5,length(specRange));
-specNoiseTfVec = nan(1E5,length(specRange));
-peakFrVec = nan(1E5,1);
-yFiltBuffVec = cell(1E5,1);
-deltaEnvVec = nan(1E5,1);
-nDurVec = nan(1E5,1);
+cParams.clickTimes = nan(1E5,2);
+cParams.ppSignalVec = nan(1E5,1);
+cParams.durClickVec = nan(1E5,1);
+cParams.bw3dbVec = nan(1E5,3);
+cParams.specClickTfVec = nan(1E5,length(specRange));
+cParams.specNoiseTfVec = nan(1E5,length(specRange));
+cParams.peakFrVec = nan(1E5,1);
+cParams.deltaEnvVec = nan(1E5,1);
+cParams.nDurVec = nan(1E5,1);
+% time series stored in cell arrays because length varies
+cParams.yNFiltVec = cell(1E5,1);
+cParams.yFiltVec = cell(1E5,1);
+cParams.yFiltBuffVec = cell(1E5,1);
+
 f = [];
 sIdx = 1;
 eIdx = 0;
-% Initialize accumulators for noise compensation (Noise model is built
-% cumulatively across files).
 
 numStarts = length(starts);
-fidOut = fopen(strcat(fullLabel(1:end-1),p.clickAnnotExt),'w+');
+fidOut = fopen(strcat(labelFile(1:end-1),p.clickAnnotExt),'w+');
 
 for k = 1:numStarts % stepping through using the start/end points
     
     % Filter the data
     wideBandData = dGet_filtered_data(fid,starts(k),stops(k),hdr,...
-        fB,fA,channel,fullFiles);
+        p,recFile);
     
     % Look for click candidates
     [clicks, noise] = dHighres_click(p, hdr, wideBandData);
@@ -47,27 +45,26 @@ for k = 1:numStarts % stepping through using the start/end points
         % Compute click parameters to decide if the detection should be kept
         [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
             specNoiseTf,peakFr,yFiltBuff,f,deltaEnv,nDur] = ...
-            clickParameters(noise,wideBandData,p,...
-            fftWindow,xfrOffset',clicks,specRange,hdr);
+            clickParameters(noise,wideBandData,p,clicks,hdr);
         
         if ~isempty(clickInd)
             % Write out .cTg file
             [clkStarts,clkEnds] = dProcess_valid_clicks(clicks,clickInd,...
-                starts(k),hdr,fidOut,fB);
+                starts(k),hdr,fidOut,p);
             
             eIdx = sIdx + size(nDur,1)-1;
-            clickTimes(sIdx:eIdx,1:2) = [clkStarts,clkEnds];
-            ppSignalVec(sIdx:eIdx,1) = ppSignal;
-            durClickVec(sIdx:eIdx,1) = durClick;
-            bw3dbVec(sIdx:eIdx,:) = bw3db;
-            yNFiltVec(sIdx:eIdx,:) = yNFilt';
-            yFiltVec(sIdx:eIdx,:)= yFilt';
-            specClickTfVec(sIdx:eIdx,:) = specClickTf;
-            specNoiseTfVec(sIdx:eIdx,:) = specNoiseTf;
-            peakFrVec(sIdx:eIdx,1) = peakFr;
-            yFiltBuffVec(sIdx:eIdx,:) = yFiltBuff';
-            deltaEnvVec(sIdx:eIdx,1) = deltaEnv;
-            nDurVec(sIdx:eIdx,1) = nDur;
+            cParams.clickTimes(sIdx:eIdx,1:2) = [clkStarts,clkEnds];
+            cParams.ppSignalVec(sIdx:eIdx,1) = ppSignal;
+            cParams.durClickVec(sIdx:eIdx,1) = durClick;
+            cParams.bw3dbVec(sIdx:eIdx,:) = bw3db;
+            cParams.yNFiltVec(sIdx:eIdx,:) = yNFilt';
+            cParams.yFiltVec(sIdx:eIdx,:)= yFilt';
+            cParams.specClickTfVec(sIdx:eIdx,:) = specClickTf;
+            cParams.specNoiseTfVec(sIdx:eIdx,:) = specNoiseTf;
+            cParams.peakFrVec(sIdx:eIdx,1) = peakFr;
+            cParams.yFiltBuffVec(sIdx:eIdx,:) = yFiltBuff';
+            cParams.deltaEnvVec(sIdx:eIdx,1) = deltaEnv;
+            cParams.nDurVec(sIdx:eIdx,1) = nDur;
             sIdx = eIdx+1;
         end
     end
@@ -77,17 +74,17 @@ for k = 1:numStarts % stepping through using the start/end points
 end
 
 fclose(fidOut);
-% goodRows = find(~isnan(clickTimes(:,1))==1);
-% goodCells = find(cellfun('isempty',yFiltVec)==0);
-clickTimes = clickTimes(1:eIdx,:);
-ppSignalVec = ppSignalVec(1:eIdx,:);
-durClickVec = durClickVec(1:eIdx,:);
-bw3dbVec = bw3dbVec(1:eIdx,:);
-yFiltVec = yFiltVec(1:eIdx,:);
-yNFiltVec = yNFiltVec(1:eIdx,:);
-specClickTfVec = specClickTfVec(1:eIdx,:);
-specNoiseTfVec = specNoiseTfVec(1:eIdx,:);
-peakFrVec = peakFrVec(1:eIdx,:);
-yFiltBuffVec = yFiltBuffVec(1:eIdx,:);
-deltaEnvVec = deltaEnvVec(1:eIdx,:);
-nDurVec = nDurVec(1:eIdx,:);
+
+% prune off any extra cells that weren't filled
+cParams.clickTimes = cParams.clickTimes(1:eIdx,:);
+cParams.ppSignalVec = cParams.ppSignalVec(1:eIdx,:);
+cParams.durClickVec = cParams.durClickVec(1:eIdx,:);
+cParams.bw3dbVec = cParams.bw3dbVec(1:eIdx,:);
+cParams.yFiltVec = cParams.yFiltVec(1:eIdx,:);
+cParams.yNFiltVec = cParams.yNFiltVec(1:eIdx,:);
+cParams.specClickTfVec = cParams.specClickTfVec(1:eIdx,:);
+cParams.specNoiseTfVec = cParams.specNoiseTfVec(1:eIdx,:);
+cParams.peakFrVec = cParams.peakFrVec(1:eIdx,:);
+cParams.yFiltBuffVec = cParams.yFiltBuffVec(1:eIdx,:);
+cParams.deltaEnvVec = cParams.deltaEnvVec(1:eIdx,:);
+cParams.nDurVec = cParams.nDurVec(1:eIdx,:);

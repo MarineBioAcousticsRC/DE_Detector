@@ -7,8 +7,9 @@ c_stops = nan(length(sStarts),1);
 k=1;
 clickSampleLims = ceil((hdr.fs./1e6).*[p.minClick_us, p.maxClick_us]);
 
-dataSmooth = smooth(energy,15);
-thresh = prctile(energy,70);
+dataSmooth = fastsmooth(energy,15);
+
+thresh = prctile(energy,p.energyPrctile);
 for itr = 1:length(sStarts)
     rangeVec = sStarts(itr):sStops(itr);
     % make an envelope: TODO - try hilbert and first diff? While loops are
@@ -22,9 +23,9 @@ for itr = 1:length(sStarts)
     midx = rangeVec(largePeakList(1));
     
     leftmost = 5;
-    %Repeat for complete clicks using running mean of Teager Energy
+    % Repeat for complete clicks using running mean of smoothed energy
     leftIdx = max(midx - 1,leftmost);
-    while leftIdx > leftmost && mean(dataSmooth(leftIdx-4:leftIdx) > thresh)~=0 % /2
+    while (leftIdx > leftmost) && mean(dataSmooth(leftIdx-4:leftIdx) > thresh)~=0 % /2
         leftIdx = leftIdx - 1;
     end
     

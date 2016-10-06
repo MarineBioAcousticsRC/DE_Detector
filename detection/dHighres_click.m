@@ -1,15 +1,16 @@
 function [completeClicks, noise] = dHighres_click(p,hdr,bpDataHi)
+
 % Tyack & Clark 2000 cite Au (1993) in Hearing by Whales & Dolphins, Au
 % (ed.) stating that dolphins can distinguish clicks separated by as
 % little as 205 us.
 
-minGap_samples = ceil(hdr.fs/1e6 * p.mergeThr);
+minGap_samples = ceil(p.mergeThr*hdr.fs/1e6);
 energy = bpDataHi.^2;
 candidatesRel = find(energy> p.countThresh);
 if length(candidatesRel)<1
     candidatesRel = [];
 end
-completeClicks=[];
+completeClicks = [];
 noise = [];
 
 if ~ isempty(candidatesRel)

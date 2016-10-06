@@ -1,5 +1,5 @@
-function [xwavNames]= dFind_xwavs(baseDir,depl)
-% also retunrs .wav files
+function xwavNames = dFind_xwavs(baseDir,depl)
+% also returns .wav files
 
 % Find folders in baseDir
 folders = dir(baseDir);
@@ -7,7 +7,9 @@ folders = dir(baseDir);
 for fidx = 1:length(folders)
     true = strfind(folders(fidx).name, depl);
     decim = strfind(folders(fidx).name, 'd100');
-    if isempty(true) || ~isempty(decim)
+    other = strfind(folders(fidx).name, 'other');
+    % (you can use "other" in name to avoid scanning for xwavs)
+    if isempty(true) || ~isempty(decim) || ~isempty(other)
         trueIdx(fidx) = 0;
     else
         trueIdx(fidx) = 1;
@@ -15,7 +17,9 @@ for fidx = 1:length(folders)
 end
 
 keep = find(trueIdx==1);
-% Build file structure
+
+% Build file structure or use guided detection spreadsheet to identify files of
+% interest.
 folderNames = {};
 m = 1;
 for fidx = 1:length(keep)
@@ -25,7 +29,6 @@ for fidx = 1:length(keep)
     end
 end
 
-
 % Pull out x.wav files from all folders, combine full paths into one long list
 xwavNames = [];
 for fidx = 1:size(folderNames,1)
@@ -33,22 +36,12 @@ for fidx = 1:size(folderNames,1)
     % list of files
     d = dir(fullfile(xwavDir,'*.wav')); % list of wav and/or xwav files
     xwavs = char(d.name);      % file names in directory
-    % filenames
     
+    % make full path filenames
     xwavList = [];
     for s = 1:size(xwavs,1)
-        xwavList(s,:) = fullfile(folderNames{fidx,1},xwavs(s,:));
+        xwavList(s,:) = fullfile(baseDir,folderNames{fidx,1},xwavs(s,:));
     end
     xwavNames = [xwavNames;char(xwavList)];
 end
 
-% %parse out all dates and times for the start of each xwav file
-% ds = size(xwavNames,2);
-% startFile = [];
-% for m = 1:size(xwavNames,1)
-%     file = xwavNames(m,:);
-%     dateFile = [str2num(['20',file(ds-18:ds-17)]),str2num(file(ds-16:ds-15)),...
-%         str2num(file(ds-14:ds-13)),str2num(file(ds-11:ds-10)),...
-%         str2num(file(ds-9:ds-8)),str2num(file(ds-7:ds-6))];
-%     startFile = [startFile; datenum(dateFile)];
-% end

@@ -1,6 +1,6 @@
 function [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
     specNoiseTf,peakFr,yFiltBuff,f,deltaEnv,nDur] = clickParameters(noiseIn,...
-    wideBandData,p,fftWindow,PtfN,clicks,specRange,hdr)
+    wideBandData,p,clicks,hdr)
 
 %Take timeseries out of existing file, convert from normalized data to
 %counts
@@ -19,10 +19,9 @@ function [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize variables
-N = length(fftWindow);
+N = length(p.fftWindow);
 f = 0:((hdr.fs/2)/1000)/((N/2)-1):((hdr.fs/2)/1000);
-f = f(specRange);
-
+f = f(p.specRange);
 
 ppSignal = zeros(size(clicks,1),1);
 durClick =  zeros(size(clicks,1),1);
@@ -37,9 +36,6 @@ cDLims = ceil([p.minClick_us, p.maxClick_us]./(hdr.fs/1e6));
 envDurLim = ceil(p.delphClickDurLims.*(hdr.fs/1e6));
 nDur = zeros(size(clicks,1),1);
 deltaEnv = zeros(size(clicks,1),1);
-
-f = 0:((hdr.fs/2)/1000)/((N/2)-1):((hdr.fs/2)/1000);
-f = f(specRange);
 
 % concatonnate vector of noise
 for itr = 1:min([30,size(noiseIn,1)])
@@ -92,8 +88,8 @@ for c = 1:size(clicks,1)
     spClickSub = spClickSub(:,1:N/2);
     spNoiseSub = spNoiseSub(:,1:N/2);
     
-    specClickTf(c,:) = spClickSub(specRange)+PtfN;
-    specNoiseTf(c,:) = spNoiseSub(specRange)+PtfN;
+    specClickTf(c,:) = spClickSub(p.specRange)+p.xfrOffset;
+    specNoiseTf(c,:) = spNoiseSub(p.specRange)+p.xfrOffset;
     
     %%%%%
     % calculate peak click frequency
@@ -201,7 +197,7 @@ for c = 1:size(clicks,1)
     end
     
     %add PtfN transfer function at peak frequency to P
-    tfPeak = PtfN(fLow(1));
+    tfPeak = p.xfrOffset(fLow(1));
     ppSignal(c) = P+tfPeak;
 end
 
@@ -213,15 +209,17 @@ for idx = 1:length(ppSignal)
              peakFr(idx) < p.cutPeakBelowKHz;...
              peakFr(idx) > p.cutPeakAboveKHz;...
              nDur(idx)>  (envDurLim(2));...
-             nDur(idx)<  (envDurLim(1));...
-             bw3db(idx,3) < p.bw3dbMin];
+             nDur(idx)<  (envDurLim(1))];%...
+%             bw3db(idx,3) < p.bw3dbMin];
 %          plot(yFiltBuff{idx})
 %          title(sum(tfVec))
-%          1;
+          1;
     if ppSignal(idx)< p.ppThresh
         validClicks(idx) = 0; 
     elseif sum(tfVec)>0   
         validClicks(idx) = 0; 
+    else
+        1;
     end
     
 end

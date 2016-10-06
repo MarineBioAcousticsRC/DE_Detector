@@ -1,14 +1,17 @@
-function dHighres_click_batch(fullFiles,fullLabels,inDisk,p,viewPath,tfFullFile)
+function dHighres_click_batch(fullFiles,fullLabels,inDisk,p,...
+    metaDir,baseDir,tfFullFile, encounterTimes)
 
 N = length(fullFiles);
-parfor idx1 = 1:N % for each data file
+for idx1 = 1:N % for each data file
     previousFs = 0; % make sure we build filters on first pass
     %(has to be inside loop for parfor, ie, filters are rebuilt every time,
     % can be outside for regular for)
-
-    % figure out which files are needed, where to find them.
-    [hdr,channel,labelFile]...
-        = dInput_HR_files(fullFiles{idx1},fullLabels{idx1},viewPath,p);
+    
+    recFile = fullFiles{idx1};
+    labelFile = fullLabels{idx1};
+    
+    % read file header
+    hdr = dInput_HR_files(recFile,p);
     
     if isempty(hdr.fs)
         continue % skip if you couldn't read a header
@@ -16,71 +19,73 @@ parfor idx1 = 1:N % for each data file
         % otherwise, if this is the first time through, build your filters,
         % only need to do this once though, so if you already have this
         % info, this step is skipped
-        [previousFs,fftSize,fftWindow,binWidth_Hz,freq_kHz,...
-            fB,fA,specRange] = dBuild_filters(p,hdr.fs);
+        [previousFs,~,p.fftWindow,p.binWidth_Hz,~,...
+            p.fB,p.fA,p.specRange] = dBuild_filters(p,hdr.fs);
         
         % Determine the frequencies for which we need the transfer function
-        xfr_f = (specRange(1)-1)*binWidth_Hz:binWidth_Hz:(specRange(end)-1)*binWidth_Hz;
+        p.xfr_f = (p.specRange(1)-1)*p.binWidth_Hz:p.binWidth_Hz:...
+            (p.specRange(end)-1)*p.binWidth_Hz;
         if ~isempty(tfFullFile)
-            [xfr_f, xfrOffset] = dtf_map(tfFullFile, xfr_f);
-             p.countThresh = (10^((p.ppThresh-max(xfrOffset))./20))^2;
-
+            [p.xfr_f, p.xfrOffset] = dtf_map(tfFullFile, p.xfr_f);
+            p.countThresh = (10^((p.ppThresh-max(p.xfrOffset))./20))^2;
+            
         else
             % if you didn't provide a tf function, then just create a
             % vector of zeros of the right size.
-            xfrOffset = zeros(size(xfr_f));
+            p.countThresh = p.countThresh;
+            p.ppThresh = 20*log10(2*sqrt(p.countThresh));
+            p.xfrOffset = zeros(size(p.xfr_f));
         end
-        xfrOffset = xfrOffset';
     end
     
-    if exist([inDisk 'metadata\' labelFile],'file')
+    if exist(labelFile,'file')
         % Read in the .c file produced by the short term detector.
-        [starts,stops,~] = ioReadLabelFile([inDisk 'metadata\' labelFile]);
-    else 
+        [starts,stops,~] = ioReadLabelFile(labelFile);
+    else
         continue
     end
     % Open xwav file
-    fid = ioOpenViewpath(fullFiles{idx1}, viewPath, 'r');
+    fid = fopen(recFile, viewPath, 'r');
     
     % Look for clicks, hand back parameters of retained clicks
-    [clickTimes,ppSignalVec,durClickVec,bw3dbVec,yNFiltVec,yFiltVec,...
-        specClickTfVec, specNoiseTfVec, peakFrVec,yFiltBuffVec,f,deltaEnvVec,nDurVec]...
-        = dProcess_HR_starts(fid, fB,fA,starts,stops,channel,...
-        xfrOffset,specRange,p,hdr,fullFiles{idx1},fftWindow,fullLabels{idx1});
+    [cParams,f] = dProcess_HR_starts(fid,starts,stops,...
+        p,hdr,recFile,labelFile);
     
     % Done with that file
     fclose(fid);
     fclose all;
-    fprintf('done with %s\n', fullFiles{idx1});
+    fprintf('done with %s\n', recFile);
     
     % Run post processing to remove rogue loner clicks, prior to writing
     % the remaining output files.
-    delFlag = clickInlinePProc(fullLabels{idx1},clickTimes,p);
+    clickTimes = sortrows(cParams.clickTimes);
+    
+    delFlag = clickInlinePProc(labelFile,clickTimes,p,hdr,encounterTimes);
     delIdx = find(delFlag==1);
     
     % save a mat file now, rather than recalculating later
     clickTimes = clickTimes(delIdx,:);
-    ppSignal = ppSignalVec(delIdx,:);
-    durClick = durClickVec(delIdx,:);
-    bw3db = bw3dbVec(delIdx,:);
+    ppSignal = cParams.ppSignalVec(delIdx,:);
+    durClick = cParams.durClickVec(delIdx,:);
+    bw3db = cParams.bw3dbVec(delIdx,:);
     
-    specClickTf = specClickTfVec(delIdx,:);
-    specNoiseTf = specNoiseTfVec(delIdx,:);
-    peakFr = peakFrVec(delIdx,:);
-    deltaEnv = deltaEnvVec(delIdx,:);
-    nDur = nDurVec(delIdx,:);
+    specClickTf = cParams.specClickTfVec(delIdx,:);
+    specNoiseTf = cParams.specNoiseTfVec(delIdx,:);
+    peakFr = cParams.peakFrVec(delIdx,:);
+    deltaEnv = cParams.deltaEnvVec(delIdx,:);
+    nDur = cParams.nDurVec(delIdx,:);
     
     if ~isempty(delIdx)
-        yFilt = yFiltVec(delIdx);
-        yFiltBuff = yFiltBuffVec(delIdx);
-        yNFilt = yNFiltVec(delIdx);
+        yFilt = cParams.yFiltVec(delIdx);
+        yFiltBuff = cParams.yFiltBuffVec(delIdx);
+        yNFilt = cParams.yNFiltVec(delIdx);
     else
         yFilt = {};
         yFiltBuff = {};
         yNFilt = {};
     end
-    save_dets2mat(strcat(fullLabels{idx1}(1:end-2),'.mat'),clickTimes,...
+    save_dets2mat(strrep(labelFile,'.c','.mat'),clickTimes,...
         ppSignal,durClick,f,hdr,nDur,deltaEnv,yNFilt,specNoiseTf,bw3db,...
         yFilt,specClickTf,peakFr,yFiltBuff,p,xfrOffset);
-   
+    
 end
