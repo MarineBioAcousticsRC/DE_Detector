@@ -64,14 +64,15 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
         filtData = filter(B,A,data);
         energy = filtData.^2;
         
+        buffSamples = p.buff*hdr.fs;
         % Flag times when the amplitude rises above a threshold
         spotsOfInt = find(energy>(p.thresholds));
-        detStart = max((((spotsOfInt - p.buff)/hdr.fs)+startK),startK);
-        detStop = min((((spotsOfInt + p.buff)/hdr.fs)+startK),stopK);
+        detStart = max((((spotsOfInt - buffSamples)/hdr.fs)+startK),startK);
+        detStop = min((((spotsOfInt + buffSamples)/hdr.fs)+startK),stopK);
         
         % Merge flags that are close together.
         if length(detStart)>1
-            [stopsM,startsM] = spMergeCandidates(p.buff/hdr.fs,detStop',detStart');
+            [stopsM,startsM] = spMergeCandidates(buffSamples/hdr.fs,detStop',detStart');
         else
             startsM = detStart;
             stopsM = detStop;

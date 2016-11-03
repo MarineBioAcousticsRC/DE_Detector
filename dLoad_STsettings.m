@@ -1,7 +1,7 @@
 function parametersST = dLoad_STsettings
 % Assign short term detector settings
 
-parametersST.buff = 500; % # of buffer samples to add on either side of area of interest
+parametersST.buff = 0.0025; % # of buffer in seconds to add on either side of area of interest
 parametersST.chan = 1; % which channel do you want to look at?
 
 parametersST.fRanges = [10000 90000]; 
