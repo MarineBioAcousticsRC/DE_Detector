@@ -4,6 +4,7 @@ Set of scripts to detect odontocete clicks above a threshold recieved level in .
 
 Detector by Kait E. Frasier.
 
+https://zenodo.org/badge/latestdoi/22897395
 
 ## How To Use This Code:
 
