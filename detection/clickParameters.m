@@ -51,14 +51,13 @@ for c = 1:size(clicks,1)
     yFilt{c} = wideBandData(clicks(c,1):clicks(c,2));
     %convert  timeseries into counts
     if strcmp(hdr.fType, 'xwav')
-        click = yFilt{c};%*2^14;
-        clickBuff = yFiltBuff{c};%*2^14;
-        noise = yNFilt;%*2^14; % convert to counts
+        click = yFilt{c};
+        clickBuff = yFiltBuff{c};
+        noise = yNFilt;
     else
-        click = yFilt{c};%*2^15; % array needs 2^15 to convert into counts. 
-        % Unclear what the cause of this is.
-        clickBuff = yFiltBuff{c};%*2^15;
-        noise = yNFilt;%*2^15; % convert to counts
+        click = yFilt{c};
+        clickBuff = yFiltBuff{c};
+        noise = yNFilt;
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Calculate duration in seconds
@@ -75,7 +74,7 @@ for c = 1:size(clicks,1)
     noiseWLen = length(noise);
     noiseWin = hann(noiseWLen);
     wNoise = zeros(1,N);
-    wNoise(1:noiseWLen) = noiseWin.*noise.';
+    wNoise(1:noiseWLen) = noiseWin.*noise';
     spNoise = 20*log10(abs(fft(wNoise,N)));
     
     

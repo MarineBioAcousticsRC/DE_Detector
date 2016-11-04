@@ -14,7 +14,7 @@ if rem(fftSize, 2) == 1
     fftSize = fftSize - 1;  % Avoid odd length of fft
 end
 
-fftWindow = hanning(fftSize)';
+fftWindow = hann(fftSize)';
 
 lowSpecIdx = round(p.bpRanges(1)/fs*fftSize)+1;
 highSpecIdx = round(p.bpRanges(2)/fs*fftSize)+1;
