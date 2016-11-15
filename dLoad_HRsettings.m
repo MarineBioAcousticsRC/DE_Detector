@@ -11,7 +11,7 @@ parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1. 
 
 
 %%% RECIEVED LEVEL THRESHOLD %%%
-parametersHR.ppThresh = 112;% minimum  RL threshold - dB peak to peak.
+parametersHR.ppThresh = 118;% minimum  RL threshold - dB peak to peak.
 
 % Only used if transfer function is not provided (Keep consistent with low-res)
 parametersHR.countThresh = 15000; 
@@ -54,7 +54,7 @@ parametersHR.energyPrctile = 70; % sets the threshold at which click start
 %  energy in the time window. 
 
 %%% GUIDED DETECTOR OPTIONS %%%%%%%
-parametersHR.guidedDetector = 1; % set to 1 for guided detections.
+parametersHR.guidedDetector = 0; % set to 1 for guided detections.
 
 
 %%% WAV FILE NAMING OPTION %%%%%%%%

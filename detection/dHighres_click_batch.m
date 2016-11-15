@@ -27,8 +27,8 @@ for idx1 = 1:N % for each data file
             (p.specRange(end)-1)*p.binWidth_Hz;
         if ~isempty(tfFullFile)
             [p.xfr_f, p.xfrOffset] = dtf_map(tfFullFile, p.xfr_f);
-            p.countThresh = (10^((p.ppThresh-max(p.xfrOffset))./20))^2;
-            
+            % p.countThresh = (10^((p.ppThresh-max(p.xfrOffset))./20));
+            p.countThresh = 10000;
         else
             % if you didn't provide a tf function, then just create a
             % vector of zeros of the right size.

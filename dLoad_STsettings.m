@@ -30,5 +30,5 @@ parametersST.DateRE = '_(\d*)_(\d*)';
 % 
 
 %%%%% GUIDED DETECTIONS? %%%%
-parametersST.guidedDetector = 1; % flag to 1 if guided
+parametersST.guidedDetector = 0; % flag to 1 if guided
 

@@ -3,6 +3,7 @@ function xwavNames = dFind_xwavs(baseDir,depl)
 
 % Find folders in baseDir
 folders = dir(baseDir);
+trueIdx = [];
 % Remove those that don't belong to data
 for fidx = 1:length(folders)
     true = strfind(folders(fidx).name, depl);
