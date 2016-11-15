@@ -3,6 +3,7 @@ function dHighres_click_batch(fullFiles,fullLabels,p,...
 
 N = length(fullFiles);
 for idx1 = 1:N % for each data file
+    fprintf('beginning file %d of %d \n',idx1,N)
     previousFs = 0; % make sure we build filters on first pass
     %(has to be inside loop for parfor, ie, filters are rebuilt every time,
     % can be outside for regular for)
