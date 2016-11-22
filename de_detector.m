@@ -25,7 +25,7 @@ fclose all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-tfFullFile = 'E:\Code\TF_files\Recalculated\tf files\719_130725\719_130725_invSensit.tf';
+tfFullFile = 'E:\Code\TF_files\Recalculated\tf files\718_130725\718_130725_invSensit.tf';
 % Note, if you don't have a transfer function just use:
 % tfFullFile = [];
 
@@ -41,10 +41,10 @@ outDir  = 'D:\detStore\GC';
 % directory(ies) you want to look in you want to look at. For now, 
 % directory hierarchy is expected to be: basedir>depl*>*.x.wav
 % TODO: implement recursive directory search for more flexibility.
-depl = 'GofMX_GC08';
+depl = 'GOM_GC_09';
 
 % Set flags indicating which routines to run. 
-lowResDet = 0; %run short time detector.
+lowResDet = 1; %run short time detector.
 highResDet = 1; %run high res detector
 
 %%%% Optional: guided detection spreadsheet, can be empty
@@ -76,7 +76,7 @@ end
 
 % Build list of (x)wav names in the base directory.
 % Right now only wav and xwav files are looked for.
-detFiles = dFind_xwavs(baseDir,depl);
+detFiles = dFind_xwavs(baseDir,depl,metaDir);
 
 if gD && ~isempty(gDxls)
     [detFiles,encounterTimes] = guidedDetection(detFiles,gDxls);
@@ -95,19 +95,19 @@ if ~isempty(detFiles)
     % Short time detector
     if lowResDet
         tic 
-        display('Beginning low-res detection\n')
+        display('Beginning low-res detection')
         dtST_batch(fullLabels,fullFiles,paramsST,metaDir); % run detector
-        display('Done with low-res detector\n')
+        display('Done with low-res detector')
         toc
     end
     
     % High res detector
     if highResDet
         tic
-        display('Beginning high-res detection\n')
+        display('Beginning high-res detection')
         dHighres_click_batch(fullFiles,fullLabels,paramsHR,...
             tfFullFile,encounterTimes)
-        display('Done with high-res detector\n')
+        display('Done with high-res detector')
         toc
     end
 else

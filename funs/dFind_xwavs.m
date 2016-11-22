@@ -1,4 +1,4 @@
-function xwavNames = dFind_xwavs(baseDir,depl)
+function xwavNames = dFind_xwavs(baseDir,depl,metaDir)
 % also returns .wav files
 
 % Find folders in baseDir
@@ -34,6 +34,10 @@ end
 xwavNames = [];
 for fidx = 1:size(folderNames,1)
     xwavDir = fullfile(baseDir,folderNames{fidx,1});
+    metaSubDir = fullfile(metaDir,folderNames{fidx,1});
+    if ~isdir(metaSubDir)
+        mkdir(metaSubDir)
+    end
     % list of files
     d = dir(fullfile(xwavDir,'*.wav')); % list of wav and/or xwav files
     xwavs = char(d.name);      % file names in directory
