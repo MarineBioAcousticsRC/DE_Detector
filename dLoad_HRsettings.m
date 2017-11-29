@@ -61,7 +61,6 @@ parametersHR.guidedDetector = 0; % set to 1 for guided detections.
 % if you're using wav files that have a time stamp in the name, put a
 % regular expression for extracting that here:
 parametersHR.DateRE = '_(\d*)_(\d*)';
-
 % mine look like "filename_20110901_234905.wav" 
 % ie "*_yyyymmdd_HHMMSS.wav"
 

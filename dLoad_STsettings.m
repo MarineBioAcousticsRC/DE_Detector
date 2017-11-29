@@ -27,7 +27,7 @@ parametersST.DateRE = '_(\d*)_(\d*)';
 %         ie.:  "*yyyy-yymmdd-HHMMSS*.wav"
 %         So use:
 %         parametersST.DateRE = '(\d{4})-\d{2}(\d{4})-(\d{6})';
-% 
+
 
 %%%%% GUIDED DETECTIONS? %%%%
 parametersST.guidedDetector = 0; % flag to 1 if guided
