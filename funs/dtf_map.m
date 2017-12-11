@@ -19,7 +19,16 @@ if fid ~=-1
     % in the transfer function, use linear interpolation.
     if nargin > 1 && ...
             (length(f_desired) ~= length(f) || sum(f_desired ~= f))
+        [~,uniqueIndex] = unique(f);
+        if length(uniqueIndex)<length(f) % check for duplicate frequencies
+            % remove if there are duplicates, otherwise interpolation will
+            % fail
+            warning('Duplicate frequencies detected in transfer function.')
+            f = f(uniqueIndex);
+            uppc = uppc(uniqueIndex);
+        end 
         % interpolate for frequencies user wants
+
         uppc = interp1(f, uppc, f_desired, 'linear', 'extrap');
         f = f_desired;
     end

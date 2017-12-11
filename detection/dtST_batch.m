@@ -58,6 +58,10 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
                 'Channels', channel, 'Normalize', 'unscaled')';
         else
             data = ioReadRaw(fid, hdr, k, channel);
+           if isempty(data)
+                % in case no data was read in, move on.
+                continue
+            end
         end
         
         % bandpass

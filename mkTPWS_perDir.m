@@ -31,7 +31,7 @@ if ~exist(outDir,'dir')
 end
 letterCode = 97:122;
 dirSet = dir(fullfile(baseDir,'*_disk*'));
-for itr0 = 7:length(dirSet)
+for itr0 = 1:length(dirSet)
     if dirSet(itr0).isdir &&~strcmp(dirSet(itr0).name,'.')&&...
             ~strcmp(dirSet(itr0).name,'..')
         

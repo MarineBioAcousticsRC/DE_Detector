@@ -27,7 +27,9 @@ if strcmp(hdr.fType, 'xwav')
   
     fseek(Handle, hdr.xhd.byte_loc(rawNum),'bof');
     data = fread(Handle,[hdr.nch, samples],dtype);
-    
+    if isempty(data) % sometimes the last raw file seems to be empty. 
+        return
+    end
     if hdr.xgain(rawNum) > 0
         data = data ./ hdr.xgain(rawNum);
     end
