@@ -14,14 +14,13 @@ for idx1 = 1:N % for each data file
     % read file header
     hdr = dInput_HR_files(recFile,p);
     
-    if isempty(hdr.fs)
+    if isempty(hdr)
         continue % skip if you couldn't read a header
     elseif hdr.fs ~= previousFs
         % otherwise, if this is the first time through, build your filters,
         % only need to do this once though, so if you already have this
         % info, this step is skipped
-        [previousFs,~,p.fftWindow,p.binWidth_Hz,~,...
-            p.fB,p.fA,p.specRange] = dBuild_filters(p,hdr.fs);
+        [previousFs,p] = dBuild_filters(p,hdr.fs);
         
         % Determine the frequencies for which we need the transfer function
         p.xfr_f = (p.specRange(1)-1)*p.binWidth_Hz:p.binWidth_Hz:...

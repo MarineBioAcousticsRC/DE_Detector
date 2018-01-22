@@ -25,26 +25,30 @@ fclose all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-tfFullFile = 'E:\Code\TF_files\Recalculated\tf files\718_130725\718_130725_invSensit.tf';
+tfFullFile = 'D:\TF_files\808\808_151130\Sig1\808_161027\808_161027_invSensit.tf';
 % Note, if you don't have a transfer function just use:
 % tfFullFile = [];
 
 % Location of base directory containing directories of files to be analyzed
-baseDir = 'I:\';
+baseDir = 'G:\';
 
 % Optional output directory location. Metadata directory will be created in outDir
 % if specified, otherwise it will be created in baseDir.
 % outDir = '<your path here>';
-outDir  = 'D:\detStore\GC'; 
+outDir  = 'E:\JAX13D_broad_'; 
+
+[metaDir,storeDir] = dBuild_dirs(baseDir,outDir);
+% inDisk = fileparts(baseDir(1:3));
+diary(fullfile(metaDir,sprintf('diary_%s.txt',datestr(now,'YYYYMMDD'))))
 
 % Name of the deployment. This should be the first few characters in the 
 % directory(ies) you want to look in you want to look at. For now, 
 % directory hierarchy is expected to be: basedir>depl*>*.x.wav
 % TODO: implement recursive directory search for more flexibility.
-depl = 'GOM_GC_09';
+depl = 'JAX_D_13';
 
 % Set flags indicating which routines to run. 
-lowResDet = 1; %run short time detector.
+lowResDet = 0; %run short time detector.
 highResDet = 1; %run high res detector
 
 %%%% Optional: guided detection spreadsheet, can be empty
@@ -57,7 +61,7 @@ paramsHR = [];
 gD = 0;
 % load settings
 if lowResDet
-    paramsST = dLoad_STsettings;
+    paramsST = dLoad_STsettings_broad;
     if paramsST.guidedDetector
        gD = 1; % if guided detector is true in either place, 
        % and the stage (low or high res) it's in is activated, then it
@@ -65,14 +69,12 @@ if lowResDet
     end
 end
 if highResDet
-    paramsHR = dLoad_HRsettings;
+    paramsHR = dLoad_HRsettings_broad;
     if paramsHR.guidedDetector
        gD = 1;
     end
 end
 
-[metaDir,storeDir] = dBuild_dirs(baseDir,outDir);
-% inDisk = fileparts(baseDir(1:3));
 
 % Build list of (x)wav names in the base directory.
 % Right now only wav and xwav files are looked for.
@@ -116,3 +118,4 @@ end
 
 % profile viewer
 % profile off
+diary('off')

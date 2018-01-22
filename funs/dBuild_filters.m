@@ -1,25 +1,52 @@
-function [previousFs,fftSize,fftWindow,binWidth_Hz,freq_kHz,...
-   fB,fA,specRange] = dBuild_filters(p,fs)
+function [previousFs,p] = dBuild_filters(p,fs)
 
 % On first pass, or if a file has a different sampling rate than the
-% previous, rebuild the high pass filter
-[fB,fA] = butter(p.filterOrder, p.bpRanges./(fs/2));
+% previous, rebuild the  filter
+% Start by assuming it's a band pass filter
+bandPassRange = p.bpRanges;
+filtType = 'bandpass';
+p.filterSignal = true;
+p.fB = [];
+p.fA = [];
 
+% Handle different filter cases:
+% 1) low pass
+if p.bpRanges(1)== 0
+    % they only specified a top freqency cutoff, so we need a low pass
+    % filter
+    bandPassRange = p.bpRanges(2);
+    filtType = 'low';
+    if bandpassRange == fs/2
+        % they didn't specify any cutoffs, so we need no filter
+        p.filterSignal = false;
+    end
+end
+% 2) High passs
+if p.bpRanges(2)== fs/2 && p.filterSignal
+    % they only specified a lower freqency cutoff, so we need a high pass
+    % filter
+    bandPassRange = p.bpRanges(1);
+    filtType = 'high';
+end
+
+if p.filterSignal
+    [p.fB,p.fA] = butter(p.filterOrder, bandPassRange./(fs/2),filtType);
+    filtTaps = length(p.fB);
+end
 %[fA,fB] = ellip(4,0.1,40,p.bpRanges.*2/fs,'bandpass');
 % filtTaps = length(fB);
 previousFs = fs;
 
-fftSize = ceil(fs * p.frameLengthUs / 1E6);
-if rem(fftSize, 2) == 1
-    fftSize = fftSize - 1;  % Avoid odd length of fft
+p.fftSize = ceil(fs * p.frameLengthUs / 1E6);
+if rem(p.fftSize, 2) == 1
+    p.fftSize = p.fftSize - 1;  % Avoid odd length of fft
 end
+p.fftWindow = hann(p.fftSize)';
 
-fftWindow = hann(fftSize)';
+lowSpecIdx = round(p.bpRanges(1)/fs*p.fftSize);
+highSpecIdx = round(p.bpRanges(2)/fs*p.fftSize);
 
-lowSpecIdx = round(p.bpRanges(1)/fs*fftSize)+1;
-highSpecIdx = round(p.bpRanges(2)/fs*fftSize)+1;
-
-specRange = lowSpecIdx:highSpecIdx;
-binWidth_Hz = fs / fftSize;
-binWidth_kHz = binWidth_Hz / 1000;
-freq_kHz = (specRange-1)*binWidth_kHz;  % calculate frequency axis
+p.specRange = lowSpecIdx:highSpecIdx;
+p.binWidth_Hz = fs / p.fftSize;
+p.binWidth_kHz = p.binWidth_Hz / 1000;
+p.freq_kHz = p.specRange*p.binWidth_kHz;  % calculate frequency axis

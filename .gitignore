@@ -39,3 +39,10 @@ Icon
 # Matlab
 *.asv
 *.fig
+othersettings/dLoad_HRsettings_array.m
+othersettings/dLoad_HRsettings_DT07B.m
+othersettings/dLoad_STsettings_DT07B.m
+othersettings/dLoad_STsettings_DC.m
+othersettings/dLoad_STsettings_kogia.m
+othersettings/dLoad_HRsettings_kogia.m
+othersettings/dLoad_HRsettings_DC.m

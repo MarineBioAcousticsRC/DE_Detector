@@ -29,11 +29,14 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
         hdr = ioReadWavHeader(currentRecFile, p.DateRE);
         % divide wav into smaller bits for processing ease
         [startsSec,stopsSec] = dST_choose_segments(p,hdr);
-        
     elseif strcmp(fType,'.x.wav')
         hdr = ioReadXWAVHeader(currentRecFile);
-        % divide xwav by raw file
-        [startsSec,stopsSec] = dST_choose_segments_raw(hdr);
+        if ~isempty(hdr)
+            % divide xwav by raw file
+            [startsSec,stopsSec] = dST_choose_segments_raw(hdr);
+        else
+            continue
+        end
         
     end
     % Determine channel of interest
@@ -41,11 +44,32 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
     
     % Open audio file
     fid = fopen(currentRecFile, 'r');
-    
+   
     % Build a band pass filter
-    [B,A] = butter(p.filterOrder, p.fRanges./(hdr.fs/2));
-    filtTaps = length(B);
-    
+    bandPassRange = p.fRanges;
+    filtType = 'bandpass';
+    p.filterSignal = true;
+    % handle different filter cases
+    if p.fRanges(1)== 0
+       % they only specified a top freqency cutoff, so we need a low pass
+       % filter
+       bandPassRange = p.fRanges(2);
+       filtType = 'low';
+       if bandpassRange == hdr.fs/2
+           % they didn't specify any cutoffs, so we need no filter
+           p.filterSignal = false;
+       end
+    end
+    if p.fRanges(2)== hdr.fs/2 && p.filterSignal
+       % they only specified a lower freqency cutoff, so we need a high pass
+       % filter
+        bandPassRange = p.fRanges(1);
+        filtType = 'high';
+    end    
+    if p.filterSignal
+        [B,A] = butter(p.filterOrder, bandPassRange./(hdr.fs/2),filtType);
+        filtTaps = length(B);
+    end
     % Loop through search area, running short term detectors
     for k = 1:length(startsSec)
         % Select iteration start and end
@@ -58,14 +82,17 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
                 'Channels', channel, 'Normalize', 'unscaled')';
         else
             data = ioReadRaw(fid, hdr, k, channel);
-           if isempty(data)
-                % in case no data was read in, move on.
-                continue
-            end
         end
-        
+        if isempty(data)
+            warning('No data read from current file segment. Skipping.')
+            continue
+        end
         % bandpass
-        filtData = filter(B,A,data);
+        if p.filterSignal
+            filtData = filter(B,A,data);
+        else
+            filtData = data;
+        end
         energy = filtData.^2;
         
         buffSamples = p.buff*hdr.fs;
