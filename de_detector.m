@@ -48,7 +48,7 @@ diary(fullfile(metaDir,sprintf('diary_%s.txt',datestr(now,'YYYYMMDD'))))
 depl = 'JAX_D_13';
 
 % Set flags indicating which routines to run. 
-lowResDet = 0; %run short time detector.
+lowResDet = 1; %run short time detector.
 highResDet = 1; %run high res detector
 
 %%%% Optional: guided detection spreadsheet, can be empty

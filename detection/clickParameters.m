@@ -20,7 +20,7 @@ function [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize variables
 N = length(p.fftWindow);
-f = 0:((hdr.fs/2)/1000)/((N/2)-1):((hdr.fs/2)/1000);
+f = 0:((hdr.fs/2)/1000)/((N/2)):((hdr.fs/2)/1000);
 f = f(p.specRange);
 
 ppSignal = zeros(size(clicks,1),1);
@@ -60,7 +60,7 @@ for c = 1:size(clicks,1)
         noise = yNFilt;
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Calculate duration in seconds
+    % Calculate duration in samples
     durClick(c) = (clicks(c,2)-clicks(c,1));
     
     % Compute click spectrum
@@ -208,7 +208,9 @@ for idx = 1:length(ppSignal)
              peakFr(idx) < p.cutPeakBelowKHz;...
              peakFr(idx) > p.cutPeakAboveKHz;...
              nDur(idx)>  (envDurLim(2));...
-             nDur(idx)<  (envDurLim(1))];%...
+             nDur(idx)<  (envDurLim(1));
+             durClick(idx) < p.delphClickDurLims(1);
+             durClick(idx) > p.delphClickDurLims(2)];%...
 %             bw3db(idx,3) < p.bw3dbMin];
 %          plot(yFiltBuff{idx})
 %          title(sum(tfVec))
