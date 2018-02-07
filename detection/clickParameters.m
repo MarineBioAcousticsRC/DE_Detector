@@ -189,11 +189,11 @@ for c = 1:size(clicks,1)
     P = 20*log10(ppCount);
     
     peakLow=floor(peakFr(c));
-    if peakLow == (hdr.fs/2)/1000
-        fLow = N/2;
-    else
-        fLow=find(f>peakLow);
-    end
+    %if peakLow == (hdr.fs/2)/1000
+%         fLow = N/2;
+%     else
+    fLow=find(f>=peakLow);
+%     end
     
     %add PtfN transfer function at peak frequency to P
     tfPeak = p.xfrOffset(fLow(1));
