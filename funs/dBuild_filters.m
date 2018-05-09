@@ -2,7 +2,7 @@ function [previousFs,p] = dBuild_filters(p,fs)
 
 % On first pass, or if a file has a different sampling rate than the
 % previous, rebuild the  filter
-% Start by assuming it's a band pass filter
+% Start by assuming it's a bandpass filter
 bandPassRange = p.bpRanges;
 filtType = 'bandpass';
 p.filterSignal = true;
@@ -31,9 +31,9 @@ end
 
 if p.filterSignal
     [p.fB,p.fA] = butter(p.filterOrder, bandPassRange./(fs/2),filtType);
-    filtTaps = length(p.fB);
+    %[p.fB,p.fA] = ellip(4,0.1,40,bandPassRange.*2/fs,filtType);
+    % filtTaps = length(p.fB);
 end
-%[fA,fB] = ellip(4,0.1,40,p.bpRanges.*2/fs,'bandpass');
 % filtTaps = length(fB);
 previousFs = fs;
 
@@ -41,6 +41,7 @@ p.fftSize = ceil(fs * p.frameLengthUs / 1E6);
 if rem(p.fftSize, 2) == 1
     p.fftSize = p.fftSize - 1;  % Avoid odd length of fft
 end
+
 p.fftWindow = hann(p.fftSize)';
 
 lowSpecIdx = round(p.bpRanges(1)/fs*p.fftSize);

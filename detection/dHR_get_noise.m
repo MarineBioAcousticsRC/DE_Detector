@@ -14,5 +14,5 @@ end
 
 if isempty(noise) % if it didn't find any noise, grab some at random.
     noise = [1,maxClickSamples/2];
-    disp('Warning: No noise sample available')
+    %disp('Warning: No noise sample available')
 end

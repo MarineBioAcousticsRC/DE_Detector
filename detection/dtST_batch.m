@@ -1,4 +1,4 @@
-function dtST_batch(fullLabels,fullFiles,p,metaDir)
+function dtST_batch(fullLabels,fullFiles,p,tfFullFile)
 % Runs a quick energy detector on a set of files using
 % the specified set of detection parameters. Flags times containing signals
 % of interest, and outputs the results to a .c file
@@ -6,6 +6,7 @@ function dtST_batch(fullLabels,fullFiles,p,metaDir)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N = size(fullFiles,2);
+previousFs = 0; % make sure we build filters on first pass
 
 for idx = 1:N  % "parfor" works here, parallellizing the process across as
     % many cores as your machine has available.
@@ -45,31 +46,19 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
     % Open audio file
     fid = fopen(currentRecFile, 'r');
    
-    % Build a band pass filter
-    bandPassRange = p.fRanges;
-    filtType = 'bandpass';
-    p.filterSignal = true;
-    % handle different filter cases
-    if p.fRanges(1)== 0
-       % they only specified a top freqency cutoff, so we need a low pass
-       % filter
-       bandPassRange = p.fRanges(2);
-       filtType = 'low';
-       if bandpassRange == hdr.fs/2
-           % they didn't specify any cutoffs, so we need no filter
-           p.filterSignal = false;
-       end
+    % Build a band pass filter on first pass or if sample rate has changed
+    if hdr.fs ~= previousFs
+        [previousFs,p] = dBuild_filters(p,hdr.fs);
+        % also need to compute an amplitude threshold cutoff in counts
+        % keep it conservative for now by using the transfer function
+        % maximum across the band of interest
+        p = interp_tf(p,tfFullFile);
+        if isempty(p.countThresh)
+            p.countThresh =  (10^((p.dBpp - p.xfrOffset(1))/20))*(1/2);
+           
+        end
     end
-    if p.fRanges(2)== hdr.fs/2 && p.filterSignal
-       % they only specified a lower freqency cutoff, so we need a high pass
-       % filter
-        bandPassRange = p.fRanges(1);
-        filtType = 'high';
-    end    
-    if p.filterSignal
-        [B,A] = butter(p.filterOrder, bandPassRange./(hdr.fs/2),filtType);
-        filtTaps = length(B);
-    end
+    
     % Loop through search area, running short term detectors
     for k = 1:length(startsSec)
         % Select iteration start and end
@@ -89,7 +78,7 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
         end
         % bandpass
         if p.filterSignal
-            filtData = filter(B,A,data);
+            filtData = filtfilt(p.fB,p.fA,data);
         else
             filtData = data;
         end
@@ -97,7 +86,7 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
         
         buffSamples = p.buff*hdr.fs;
         % Flag times when the amplitude rises above a threshold
-        spotsOfInt = find(energy>(p.thresholds));
+        spotsOfInt = find(energy>((p.countThresh^2)));
         detStart = max((((spotsOfInt - buffSamples)/hdr.fs)+startK),startK);
         detStop = min((((spotsOfInt + buffSamples)/hdr.fs)+startK),stopK);
         

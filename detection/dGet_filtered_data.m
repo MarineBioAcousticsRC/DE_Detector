@@ -22,7 +22,7 @@ data = ioReadXWAV(fid, hdr, start, stop, p.chan, fullFiles);
 
 if p.filterSignal
     % filter the data
-    wideBandData = filter(p.fB,p.fA,data,[],2);
+    wideBandData = filtfilt(p.fB,p.fA,data);%[],2);
     wideBandData = wideBandData(:,wideBandTaps+1:end);
 else
     wideBandData = data;

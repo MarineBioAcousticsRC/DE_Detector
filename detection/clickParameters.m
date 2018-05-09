@@ -1,5 +1,4 @@
-function [clickInd,ppSignal,durClick,bw3db,yNFilt,yFilt,specClickTf,...
-    specNoiseTf,peakFr,yFiltBuff,f,deltaEnv,nDur] = clickParameters(noiseIn,...
+function [clickDets,f] = clickParameters(noiseIn,...
     wideBandData,p,clicks,hdr)
 
 %Take timeseries out of existing file, convert from normalized data to
@@ -26,22 +25,25 @@ f = f(p.specRange);
 ppSignal = zeros(size(clicks,1),1);
 durClick =  zeros(size(clicks,1),1);
 bw3db = zeros(size(clicks,1),3);
-yNFilt = [];
 yFilt = cell(size(clicks,1),1);
 specClickTf = zeros(size(clicks,1),length(f));
 yFiltBuff = cell(size(clicks,1),1);
-specNoiseTf = zeros(size(clicks,1),length(f));
 peakFr = zeros(size(clicks,1),1);
-cDLims = ceil([p.minClick_us, p.maxClick_us]./(hdr.fs/1e6));
+% cDLims = ceil([p.minClick_us, p.maxClick_us]./(hdr.fs/1e6));
 envDurLim = ceil(p.delphClickDurLims.*(hdr.fs/1e6));
 nDur = zeros(size(clicks,1),1);
 deltaEnv = zeros(size(clicks,1),1);
 
-% concatonnate vector of noise
-for itr = 1:min([30,size(noiseIn,1)])
-    nStart = noiseIn(itr,1);
-    nEnd = min([noiseIn(itr,2),nStart+580]);
-    yNFilt = [yNFilt,wideBandData(nStart:nEnd)];
+
+if p.saveNoise
+	specNoiseTf = zeros(size(clicks,1),length(f));
+	yNFilt = [];   
+    % concatonnate vector of noise
+    for itr = 1:min([30,size(noiseIn,1)])
+        nStart = noiseIn(itr,1);
+        nEnd = min([noiseIn(itr,2),nStart+580]);
+        yNFilt = [yNFilt,wideBandData(nStart:nEnd)];
+    end
 end
 
 buffVal = hdr.fs*.00025; % Add small buffer, here, I want .25 ms, so computing how many samples to use.
@@ -49,16 +51,13 @@ for c = 1:size(clicks,1)
     % Pull out band passed click timeseries
     yFiltBuff{c} = wideBandData(max(clicks(c,1)-buffVal,1):min(clicks(c,2)+buffVal,size(wideBandData,2)));
     yFilt{c} = wideBandData(clicks(c,1):clicks(c,2));
-    %convert  timeseries into counts
-    if strcmp(hdr.fType, 'xwav')
-        click = yFilt{c};
-        clickBuff = yFiltBuff{c};
-        noise = yNFilt;
-    else
-        click = yFilt{c};
-        clickBuff = yFiltBuff{c};
+    
+    click = yFilt{c};
+    clickBuff = yFiltBuff{c};
+    if p.saveNoise
         noise = yNFilt;
     end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Calculate duration in samples
     durClick(c) = (clicks(c,2)-clicks(c,1));
@@ -70,25 +69,27 @@ for c = 1:size(clicks,1)
     wClick(1:winLength) = clickBuff.*wind.';
     spClick = 20*log10(abs(fft(wClick,N)));
     
-    % Compute noise spectrum
-    noiseWLen = length(noise);
-    noiseWin = hann(noiseWLen);
-    wNoise = zeros(1,N);
-    wNoise(1:noiseWLen) = noiseWin.*noise';
-    spNoise = 20*log10(abs(fft(wNoise,N)));
-    
-    
     % account for bin width
     sub = 10*log10(hdr.fs/N);
     spClickSub = spClick-sub;
-    spNoiseSub = spNoise-sub;
     
     %reduce data to first half of spectra
     spClickSub = spClickSub(:,1:N/2);
-    spNoiseSub = spNoiseSub(:,1:N/2);
-    
     specClickTf(c,:) = spClickSub(p.specRange)+p.xfrOffset;
-    specNoiseTf(c,:) = spNoiseSub(p.specRange)+p.xfrOffset;
+
+    if p.saveNoise
+        % Compute noise spectrum
+        noiseWLen = length(noise);
+        noiseWin = hann(noiseWLen);
+        wNoise = zeros(1,N);
+        wNoise(1:noiseWLen) = noiseWin.*noise';
+        spNoise = 20*log10(abs(fft(wNoise,N)));
+        spNoiseSub = spNoise-sub;
+        spNoiseSub = spNoiseSub(:,1:N/2);   
+        specNoiseTf(c,:) = spNoiseSub(p.specRange)+p.xfrOffset;
+
+    end
+    
     
     %%%%%
     % calculate peak click frequency
@@ -214,28 +215,31 @@ for idx = 1:length(ppSignal)
 %             bw3db(idx,3) < p.bw3dbMin];
 %          plot(yFiltBuff{idx})
 %          title(sum(tfVec))
-          1;
-    if ppSignal(idx)< p.ppThresh
+    if ppSignal(idx)< p.dBpp
         validClicks(idx) = 0; 
     elseif sum(tfVec)>0   
         validClicks(idx) = 0; 
-    else
-        1;
+    %else
+    %    1;
     end
     
 end
 clickInd = find(validClicks == 1);
 
+clickDets.clickInd = clickInd;
 % throw out clicks that don't fall in desired ranges
-ppSignal = ppSignal(clickInd,:);
-durClick =  durClick(clickInd,:);
-bw3db = bw3db(clickInd,:);
+clickDets.ppSignal = ppSignal(clickInd,:);
+clickDets.durClick =  durClick(clickInd,:);
+clickDets.bw3db = bw3db(clickInd,:);
 % frames = frames{clickInd};
-yFilt = yFilt(clickInd);
-yFiltBuff = yFiltBuff(clickInd);
-specClickTf = specClickTf(clickInd,:);
-specNoiseTf = specNoiseTf(clickInd,:);
-peakFr = peakFr(clickInd,:);
-yNFilt = {yNFilt};
-deltaEnv = deltaEnv(clickInd,:);
-nDur = nDur(clickInd,:);
+clickDets.yFilt = yFilt(clickInd);
+clickDets.yFiltBuff = yFiltBuff(clickInd);
+clickDets.specClickTf = specClickTf(clickInd,:);
+clickDets.peakFr = peakFr(clickInd,:);
+clickDets.deltaEnv = deltaEnv(clickInd,:);
+clickDets.nDur = nDur(clickInd,:);
+
+if p.saveNoise
+    clickDets.specNoiseTf = specNoiseTf(clickInd,:);
+    clickDets.yNFilt = {yNFilt};
+end

@@ -6,7 +6,7 @@ function [completeClicks, noise] = dHighres_click(p,hdr,bpDataHi)
 
 minGap_samples = ceil(p.mergeThr*hdr.fs/1e6);
 energy = bpDataHi.^2;
-candidatesRel = find(energy> p.countThresh);
+candidatesRel = find(energy> (p.countThresh^2));
 if length(candidatesRel)<1
     candidatesRel = [];
 end
@@ -14,9 +14,9 @@ completeClicks = [];
 noise = [];
 
 if ~ isempty(candidatesRel)
-
-    noise = dHR_get_noise(candidatesRel,length(energy),p,hdr);
-
+    if p.saveNoise
+        noise = dHR_get_noise(candidatesRel,length(energy),p,hdr);
+    end
     [sStarts, sStops] = spDurations(candidatesRel, minGap_samples,length(energy));
 
     [c_starts,c_stops]= dHR_expand_region(p,hdr,...

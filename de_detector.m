@@ -19,13 +19,12 @@ function de_detector
 % See those files for info on settings.
 
 clearvars
-close all
 fclose all;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-tfFullFile = 'D:\TF_files\808\808_151130\Sig1\808_161027\808_161027_invSensit.tf';
+tfFullFile = 'E:\Code\TF_files\604_100614\604_100614_invSensit.tf';
 % Note, if you don't have a transfer function just use:
 % tfFullFile = [];
 
@@ -35,20 +34,20 @@ baseDir = 'G:\';
 % Optional output directory location. Metadata directory will be created in outDir
 % if specified, otherwise it will be created in baseDir.
 % outDir = '<your path here>';
-outDir  = 'E:\JAX13D_broad_'; 
+outDir  = 'K:\test_'; 
 
-[metaDir,storeDir] = dBuild_dirs(baseDir,outDir);
+[metaDir,~] = dBuild_dirs(baseDir,outDir);
 % inDisk = fileparts(baseDir(1:3));
-diary(fullfile(metaDir,sprintf('diary_%s.txt',datestr(now,'YYYYMMDD'))))
+% diary(fullfile(metaDir,sprintf('diary_%s.txt',datestr(now,'YYYYMMDD'))))
 
 % Name of the deployment. This should be the first few characters in the 
 % directory(ies) you want to look in you want to look at. For now, 
 % directory hierarchy is expected to be: basedir>depl*>*.x.wav
 % TODO: implement recursive directory search for more flexibility.
-depl = 'JAX_D_13';
+depl = 'GofMX_DC06';
 
 % Set flags indicating which routines to run. 
-lowResDet = 1; %run short time detector.
+lowResDet = 0; %run short time detector.
 highResDet = 1; %run high res detector
 
 %%%% Optional: guided detection spreadsheet, can be empty
@@ -98,7 +97,7 @@ if ~isempty(detFiles)
     if lowResDet
         tic 
         display('Beginning low-res detection')
-        dtST_batch(fullLabels,fullFiles,paramsST,metaDir); % run detector
+        dtST_batch(fullLabels,fullFiles,paramsST,tfFullFile); % run detector
         display('Done with low-res detector')
         toc
     end
@@ -118,4 +117,4 @@ end
 
 % profile viewer
 % profile off
-diary('off')
+% diary('off')
