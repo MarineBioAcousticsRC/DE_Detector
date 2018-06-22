@@ -24,7 +24,7 @@ fclose all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set transfer function location
-tfFullFile = 'E:\Code\TF_files\604_100614\604_100614_invSensit.tf';
+tfFullFile = 'G:\DCL_HF_Dev_part1\WAT_NC_01\740_140303_invSensit.tf';
 % Note, if you don't have a transfer function just use:
 % tfFullFile = [];
 
@@ -34,7 +34,7 @@ baseDir = 'G:\';
 % Optional output directory location. Metadata directory will be created in outDir
 % if specified, otherwise it will be created in baseDir.
 % outDir = '<your path here>';
-outDir  = 'K:\test_'; 
+outDir  = 'K:\WAT_NC_01'; 
 
 [metaDir,~] = dBuild_dirs(baseDir,outDir);
 % inDisk = fileparts(baseDir(1:3));
@@ -44,10 +44,10 @@ outDir  = 'K:\test_';
 % directory(ies) you want to look in you want to look at. For now, 
 % directory hierarchy is expected to be: basedir>depl*>*.x.wav
 % TODO: implement recursive directory search for more flexibility.
-depl = 'GofMX_DC06';
+depl = 'WAT_NC_01';
 
 % Set flags indicating which routines to run. 
-lowResDet = 0; %run short time detector.
+lowResDet = 1; %run short time detector.
 highResDet = 1; %run high res detector
 
 %%%% Optional: guided detection spreadsheet, can be empty

@@ -3,7 +3,7 @@ function parametersHR = dLoad_HRsettings_broad
 %%% BANDPASS FILTER AND FFT PARAMS %%
 parametersHR.bpRanges = [5000,100000]; % Bandpass filter params in Hz [min,max]
 parametersHR.filterOrder = 5; % butterworth filter order used for band pass
-parametersHR.frameLengthUs = 2000; % For fft computation
+parametersHR.frameLengthUs = 2048; % For fft computation
 parametersHR.overlap = .5; % FFT overlap (in decimal, not percent form)
 parametersHR.chan = 1; % which channel do you want to look at?
 parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1.  If empty, 
@@ -16,7 +16,7 @@ parametersHR.saveForTPWS = 1; % Save just enough data to build TPWS files. Shoul
 % limit metadata size.
 
 %%% RECIEVED LEVEL THRESHOLD %%%
-parametersHR.dBpp = 116;% minimum  RL threshold - dB peak to peak.
+parametersHR.dBpp = 118;% minimum  RL threshold - dB peak to peak.
 parametersHR.countsThresh = 50; 
 %%% CLICK ENVELOPE PARAMS %%%
 parametersHR.energyThr = 0.25; % n-percent energy threshold for envelope duration
