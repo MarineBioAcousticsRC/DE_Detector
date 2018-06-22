@@ -9,7 +9,7 @@ parametersST.filterOrder = 5; % butterworth filter order used for band pass
 parametersST.dBpp = 118; % minimum amplitude threshold in dB. 
 parametersST.countThresh = 50; % For predictability, keep this consistent between low and hi res steps.
 
-parametersST.frameLengthUs = 2048; % For fft computation
+parametersST.frameLengthUs = 2000; % For fft computation
 
 %parametersST.frameLengthSec = .01; %Used for calculating fft size
 parametersST.overlap = .50; % fft overlap
