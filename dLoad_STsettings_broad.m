@@ -7,7 +7,7 @@ parametersST.chan = 1; % which channel do you want to look at?
 parametersST.bpRanges = [5000 100000]; % Bandpass filter parameters in Hz [min,max]
 parametersST.filterOrder = 5; % butterworth filter order used for band pass
 parametersST.dBpp = 118; % minimum amplitude threshold in dB. 
-parametersST.countThresh = 50; % For predictability, keep this consistent between low and hi res steps.
+parametersST.countThresh = []; % For predictability, keep this consistent between low and hi res steps.
 
 parametersST.frameLengthUs = 2000; % For fft computation
 
