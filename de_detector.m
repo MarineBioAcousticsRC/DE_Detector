@@ -1,5 +1,5 @@
 function de_detector
-% This is the starting point for a simplified detector based on Marie Roche's  
+% This is the starting point for a simplified detector based on Marie Roch's  
 % teager energy detector. It includes ideas/code snips from Simone, 
 % and calls functions from triton. 
 % The goal of this detector is to have predictable performance, 
