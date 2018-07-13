@@ -54,7 +54,7 @@ for idx = 1:N  % "parfor" works here, parallellizing the process across as
         % maximum across the band of interest
         p = interp_tf(p,tfFullFile);
         if isempty(p.countThresh)
-            p.countThresh =  (10^((p.dBpp - p.xfrOffset(1))/20))*(1/2);
+            p.countThresh =  (10^((p.dBpp - median(p.xfrOffset)/20))*(1/2);
            
         end
     end

@@ -24,7 +24,7 @@ for idx1 = 1:N % for each data file
         
         p = interp_tf(p,tfFullFile);
         if ~exist('p.countThresh') || isempty(p.countThresh)
-            p.countThresh = (10^((p.dBpp - p.xfrOffset(1))/20))*(1/2);
+            p.countThresh = (10^((p.dBpp - median(p.xfrOffset))/20))*(1/2);
         end
     end
     
