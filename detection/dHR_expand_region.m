@@ -7,8 +7,11 @@ c_stops = nan(length(sStarts),1);
 k=1;
 clickSampleLims = ceil((hdr.fs./1e6).*[p.minClick_us, p.maxClick_us]);
 
-dataSmooth = fastsmooth(energy,15);
-
+if size(energy,2)>15
+    dataSmooth = fastsmooth(energy,15);
+else
+    dataSmooth = energy;
+end
 thresh = prctile(energy,p.energyPrctile);
 for itr = 1:length(sStarts)
     rangeVec = sStarts(itr):sStops(itr);
