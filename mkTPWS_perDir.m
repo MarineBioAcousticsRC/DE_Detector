@@ -15,8 +15,8 @@
 clearvars
 
 % Setup variables:
-baseDir = 'I:\HAT\HAT_metadata\HAT03A_metadata\'; % directory containing de_detector output
-outDir = 'I:\HAT\HAT_metadata\HAT03A_metadata\TPWS'; % directory where you want to save your TTPP file
+baseDir = 'D:\DT06\'; % directory containing de_detector output
+outDir = 'D:\DT06\TPWS'; % directory where you want to save your TTPP file
 % siteName = 'HAT03A'; % site name, only used to name the output file
 ppThresh = 120; % minimum RL in dBpp. If detections have RL below this
 % threshold, they will be excluded from the output file. Useful if you have
@@ -73,7 +73,9 @@ for itr0 = 1:length(dirSet)
                     thisClick = yFiltBuff{keepers(keepers2(iTS))};
                     [~,maxIdx] = max(thisClick);
                     % want to align clicks by max cycle
-                    f = f;
+                    if ~isempty(f)
+                        fkeep = f;
+                    end
                     dTs = (tsWin/2) - maxIdx; % which is bigger, the time series or the window?
                     dTe =  (tsWin/2)- (length(thisClick)-maxIdx); % is the length after the peak bigger than the window?
                     if dTs<=0 % if the signal starts more than N samples ahead of the peak
@@ -113,12 +115,13 @@ for itr0 = 1:length(dirSet)
             end
             fprintf('Done with file %d of %d \n',itr2,lfs)
             
-            if (size(clickTimesVec,1)>= 800000 && (lfs-itr2>=10))|| itr2 == lfs
+            if (size(clickTimesVec,1)>= 1200000 && (lfs-itr2>=10))|| itr2 == lfs
                 
                 MSN = tsVecStore;
                 MTT = clickTimesVec;
                 MPP = ppSignalVec;
                 MSP = specClickTfVec;
+                f = fkeep;
                 if itr2 == lfs && letterFlag == 0
                     ttppOutName =  [fullfile(outDir,dirSet(itr0).name),'_TPWS1','.mat'];
                     fprintf('Done with directory %d of %d \n',itr0,length(dirSet))
