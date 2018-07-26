@@ -14,7 +14,7 @@ parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1. 
 parametersHR.ppThresh = 118;% minimum  RL threshold - dB peak to peak.
 
 % Only used if transfer function is not provided (Keep consistent with low-res)
-parametersHR.countThresh = 15000; 
+parametersHR.countThresh = 10000; 
 % Keep count threshold less than equivalent pp threshold. 
 %   dBs = 10*log10(abs(fft(counts *2^14))) - 10*log10(fs/(length(fftWindow)))...
 %            + transfer function

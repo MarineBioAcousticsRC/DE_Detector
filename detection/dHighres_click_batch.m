@@ -23,7 +23,7 @@ for idx1 = 1:N % for each data file
         [previousFs,p] = dBuild_filters(p,hdr.fs);
         
         p = interp_tf(p,tfFullFile);
-        if ~exist('p.countThresh') || isempty(p.countThresh)
+        if ~isfield(p,'countThresh') || isempty(p.countThresh)
             p.countThresh = 10^((p.dBpp - median(p.xfrOffset))/20)*(1/2);
         end
     end
