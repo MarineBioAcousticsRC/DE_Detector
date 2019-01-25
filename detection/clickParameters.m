@@ -183,7 +183,7 @@ for c = 1:size(clicks,1)
     % find lowest and highest number in timeseries (counts) and add those
     high = max(click.');
     low = min(click.');
-    ppCount = high+abs(low);
+    ppCount = high-low;
     
     %calculate dB value of counts and add transfer function value at peak
     %frequency to get ppSignal (dB re 1uPa)
