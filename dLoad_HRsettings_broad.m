@@ -17,7 +17,7 @@ parametersHR.saveForTPWS = 1; % Save just enough data to build TPWS files. Shoul
 
 %%% RECIEVED LEVEL THRESHOLD %%%
 parametersHR.dBpp = 118;% minimum  RL threshold - dB peak to peak.
-parametersHR.countThresh = 10000; 
+parametersHR.countThresh = []; 
 %%% CLICK ENVELOPE PARAMS %%%
 parametersHR.energyThr = 0.25; % n-percent energy threshold for envelope duration
 parametersHR.dEvLims = [-.5,.9];  % [min,max] Envelope energy distribution comparing 

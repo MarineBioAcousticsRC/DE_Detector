@@ -9,12 +9,15 @@ parametersHR.chan = 1; % which channel do you want to look at?
 parametersHR.clipThreshold = .98;%  Normalized clipping threshold btwn 0 and 1.  If empty, 
 % assumes no clipping.
 
+parametersHR.saveNoise = 0; % Make 1 if you want to save noise samples with each click.
+parametersHR.saveForTPWS = 1; % Save just enough data to build TPWS files. Should help
+% limit metadata size.
 
 %%% RECIEVED LEVEL THRESHOLD %%%
-parametersHR.ppThresh = 118;% minimum  RL threshold - dB peak to peak.
+parametersHR.dBpp = 118;% minimum  RL threshold - dB peak to peak.
 
 % Only used if transfer function is not provided (Keep consistent with low-res)
-parametersHR.countThresh = 10000; 
+parametersHR.countThresh = sqrt(10000); 
 % Keep count threshold less than equivalent pp threshold. 
 %   dBs = 10*log10(abs(fft(counts *2^14))) - 10*log10(fs/(length(fftWindow)))...
 %            + transfer function

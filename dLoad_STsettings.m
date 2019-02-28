@@ -4,12 +4,14 @@ function parametersST = dLoad_STsettings
 parametersST.buff = 0.0025; % # of buffer in seconds to add on either side of area of interest
 parametersST.chan = 1; % which channel do you want to look at?
 
-parametersST.fRanges = [10000 90000]; 
+parametersST.bpRanges = [10000 90000]; 
 parametersST.filterOrder = 5; % butterworth filter order used for band pass
-parametersST.thresholds = 10000; % Amplitude threshold in counts. 
+parametersST.dBpp = 118; % minimum amplitude threshold in dB. 
+parametersST.countThresh = sqrt(10000); % Amplitude threshold in counts. 
 % For predictability, keep this consistent between low and hi res steps.
 
 parametersST.frameLengthSec = .01; %Used for calculating fft size
+parametersST.frameLengthUs = 2000; % For fft computation
 parametersST.overlap = .50; % fft overlap
 parametersST.REWavExt = '(\.x)?\.wav';%  expression to match .wav or .x.wav
 
